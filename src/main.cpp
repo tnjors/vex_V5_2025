@@ -9,7 +9,6 @@
 
 const int TURN_SPEED = 110;
 
-
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
@@ -80,7 +79,7 @@ void initialize() {
       // {"Boomerang Pure Pursuit\n\nGo to (0, 24, 45) on the way to (24, 24) then come back to (0, 0, 0)", odom_boomerang_injected_pure_pursuit_example},
       // {"Measure Offsets\n\nThis will turn the robot a bunch of times and calculate your offsets for your tracking wheels.", measure_offsets},
 
-      {"Drive1\n\nMain Drive Code Auton", drive_v1},
+      {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
 
   });
 
@@ -343,7 +342,6 @@ void opcontrol() {
   }
 
   // printf("Hue value: %lf \n", optical_sensor.get_hue());
-
 
   pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
 }

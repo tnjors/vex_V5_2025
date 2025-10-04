@@ -11,6 +11,9 @@ const int DRIVE_SPEED = 110;
 const int TURN_SPEED = 110;
 const int SWING_SPEED = 110;
 
+enum OrientationEnum { LEFT = -1,
+                       RIGHT = 1 };
+
 ///
 // Constants
 ///
@@ -426,6 +429,36 @@ void intakeSort(int n, int x) {
 
 // ---------------------------------------------------------------------------
 
+void genericDrive(OrientationEnum orientation) {
+  // Move center left
+
+  turnRel(26 * orientation);
+  intake.move(127);
+  drive(18);  // 28 in
+  chassis.pid_drive_set(10, 20);
+  chassis.pid_wait();
+  intake.move(0);
+  turnRel(135 * orientation);
+  drive(-13);
+
+  master.rumble(".");
+
+  // Move center left
+
+  drive(50);
+  turnRel(180 * orientation);
+  drive(8);
+
+  master.rumble(".");
+
+  // Move long left
+
+  drive(-26);
+}
+
+void leftDrive2() { genericDrive(LEFT); }
+void rightDrive2() { genericDrive(RIGHT); }
+
 void leftDrive() {
   // Move center left
 
@@ -476,16 +509,13 @@ void rightDrive() {
   drive(-26);
 }
 
-void drive_v1() {
+void drive_left() {
   leftDrive();
 
   intakeSort(60, 1000);
 
   master.rumble("..-");
 };
-
-
-
 
 // with curve
 
