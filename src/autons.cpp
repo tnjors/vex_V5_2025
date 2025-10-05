@@ -414,6 +414,7 @@ pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
  *        Delay Between the start and end of the function.
  */
 void intakeSort(int n, int x) {
+  optical_sensor.set_led_pwm(50);
   intake.move(n);
   if (optical_sensor.get_hue() > 200) {
     intakeTop.move(-n);
@@ -434,8 +435,8 @@ void genericDrive(OrientationEnum orientation) {
 
   turnRel(26 * orientation);
   intake.move(127);
-  drive(18);  // 28 in
-  chassis.pid_drive_set(10, 20);
+  drive(16);  // 28 in
+  chassis.pid_drive_set(12, 20);
   chassis.pid_wait();
   intake.move(0);
   turnRel(135 * orientation);
@@ -510,8 +511,7 @@ void rightDrive() {
 }
 
 void drive_left() {
-  leftDrive();
-
+  genericDrive(LEFT);
   intakeSort(60, 1000);
 
   master.rumble("..-");

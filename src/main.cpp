@@ -318,6 +318,8 @@ void opcontrol() {
 
     // ----Color Sort----
 
+    optical_sensor.set_led_pwm(50);
+
     int blueBalls;
 
     if (master.get_digital(DIGITAL_L2)) {
