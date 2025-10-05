@@ -476,7 +476,7 @@ void rightDrive() {
   drive(-26);
 }
 
-void drive_v1() {
+void driveLeft() {
   leftDrive();
 
   intakeSort(60, 1000);
