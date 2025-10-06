@@ -333,7 +333,7 @@ void opcontrol() {
 
     if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
       intakeTop.move(-127);
-      pros::delay(500);
+      pros::delay(300);
       intakeTop.move(0);
     } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
       intakeTop.move(127);
