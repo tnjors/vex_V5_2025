@@ -80,6 +80,7 @@ void initialize() {
       // {"Measure Offsets\n\nThis will turn the robot a bunch of times and calculate your offsets for your tracking wheels.", measure_offsets},
 
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
+      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
 
   });
 

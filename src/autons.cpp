@@ -442,6 +442,10 @@ void genericDrive(OrientationEnum orientation) {
   turnRel(135 * orientation);
   drive(-13);
 
+  intakeTop.move(-127);
+  pros::delay(500);
+  intakeTop.move(0);
+
   master.rumble(".");
 
   // Move center left
@@ -454,13 +458,15 @@ void genericDrive(OrientationEnum orientation) {
 
   // Move long left
 
-  drive(-26);
+  drive(-23);  // -26
+  chassis.pid_drive_set(-3, 20);
+  chassis.pid_wait();
 }
 
 void leftDrive2() { genericDrive(LEFT); }
 void rightDrive2() { genericDrive(RIGHT); }
 
-void leftDrive() {
+void leftDrive() {  // obsolete
   // Move center left
 
   turnRel(-26);
@@ -487,7 +493,7 @@ void leftDrive() {
   drive(-26);
 }
 
-void rightDrive() {
+void rightDrive() {  // obsolete
   // Move center right
 
   turnRel(26);
@@ -512,6 +518,13 @@ void rightDrive() {
 
 void drive_left() {
   genericDrive(LEFT);
+  intakeSort(60, 1000);
+
+  master.rumble("..-");
+};
+
+void drive_right() {
+  genericDrive(RIGHT);
   intakeSort(60, 1000);
 
   master.rumble("..-");
