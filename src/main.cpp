@@ -2,16 +2,17 @@
 
 #define OPTICAL_PORT 19
 
+const int TURN_SPEED = 110;
+
+
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
 /////
 
-const int TURN_SPEED = 110;
-
 // Chassis constructor
 ez::Drive chassis(
-    // These are your drive motors, the first motor is used for sensing!
+    // These are for the drive motors, the first motor is used for distance sensing!
     {-1, -2, -3},  // Left Chassis Ports (negative port will reverse it!)
     {7, 8, 10},    // Right Chassis Ports (negative port will reverse it!)
 
@@ -60,8 +61,6 @@ void initialize() {
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
   // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A);
 
-  // ---------------------------------------------------- Autons Selector ----------------------------------------------------
-
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
       // {"Drive\n\nDrive forward and come back", drive_example},
@@ -84,7 +83,6 @@ void initialize() {
 
   });
 
-  // ------------------------------------------------------------------------------------------------------------------------
 
   // Initialize chassis and auton selector
   chassis.initialize();
@@ -151,7 +149,7 @@ void autonomous() {
 /**
  * Simplifies printing tracker values to the brain screen
  */
-void screen_print_tracker(ez::tracking_wheel* tracker, std::string name, int line) {
+void screen_print_tracker(ez::tracking_wheel *tracker, std::string name, int line) {
   std::string tracker_value = "", tracker_width = "";
   // Check if the tracker exists
   if (tracker != nullptr) {
@@ -253,27 +251,29 @@ void ez_template_extras() {
  */
 void opcontrol() {
   // This is preference to what you like to drive on
+
+
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
+
   pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
+
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
     ez_template_extras();
 
     // chassis.opcontrol_tank();  // Tank control
-    chassis.opcontrol_arcade_standard(ez::SPLIT);  // Standard split arcade
-                                                   // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
-                                                   // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
-                                                   // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
+
+
+    chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
+    // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
+    // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
+    // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
 
     // . . .
     // Put more user control code here!
     // . . .
-
-    // ------------------------------ Hotkey Turn ------------------------
-
-    // 90 Degrees
 
     if (master.get_digital(DIGITAL_DOWN)) {
       chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
@@ -342,9 +342,13 @@ void opcontrol() {
     } else {
       intakeTop.move(0);
     }
+  
+      scraper.button_toggle(master.get_digital(DIGITAL_A));
+
+
+
+
+
+    pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
-
-  // printf("Hue value: %lf \n", optical_sensor.get_hue());
-
-  pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
 }

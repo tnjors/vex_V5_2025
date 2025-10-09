@@ -458,7 +458,7 @@ void genericDrive(OrientationEnum orientation) {
     /// Fix distances.
     drive(-6);
     turnRel(135 * orientation);
-    drive(44);
+    drive(45);
   }
 
   master.rumble(".");
@@ -482,58 +482,6 @@ void genericDrive(OrientationEnum orientation) {
   }
 }
 
-void leftDrive2() { genericDrive(LEFT); }
-void rightDrive2() { genericDrive(RIGHT); }
-
-void leftDrive() {  // obsolete
-  // Move center left
-
-  turnRel(-26);
-  intake.move(127);
-  drive(18);  // 28 in
-  chassis.pid_drive_set(10, 20);
-  chassis.pid_wait();
-  intake.move(0);
-  turnRel(-135);
-  drive(-13);
-
-  master.rumble(".");
-
-  // Move center left
-
-  drive(50);
-  turnRel(-180);
-  drive(8);
-
-  master.rumble(".");
-
-  // Move long left
-
-  drive(-26);
-}
-
-void rightDrive() {  // obsolete
-  // Move center right
-
-  turnRel(26);
-  drive(28);
-  turnRel(135);
-  drive(-13);
-
-  master.rumble(".");
-
-  // Move center right
-
-  drive(50);
-  turnRel(-180);
-  drive(8);
-
-  master.rumble(".");
-
-  // Move long right
-
-  drive(-26);
-}
 
 void drive_left() {
   genericDrive(LEFT);  // Dont forget to change back to LEFT !!!
