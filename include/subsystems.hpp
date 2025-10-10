@@ -9,3 +9,5 @@ extern Drive chassis;
 
 inline pros::MotorGroup intake({-6, -5});
 inline pros::MotorGroup intakeTop({4});
+
+inline ez::Piston scraper('A');
