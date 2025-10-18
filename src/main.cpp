@@ -4,7 +4,6 @@
 
 const int TURN_SPEED = 110;
 
-
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
@@ -78,11 +77,11 @@ void initialize() {
       // {"Boomerang Pure Pursuit\n\nGo to (0, 24, 45) on the way to (24, 24) then come back to (0, 0, 0)", odom_boomerang_injected_pure_pursuit_example},
       // {"Measure Offsets\n\nThis will turn the robot a bunch of times and calculate your offsets for your tracking wheels.", measure_offsets},
 
+      {"Drive1\n\nSolo Win Point Right", drive_swp},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
       {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
 
   });
-
 
   // Initialize chassis and auton selector
   chassis.initialize();
@@ -149,7 +148,7 @@ void autonomous() {
 /**
  * Simplifies printing tracker values to the brain screen
  */
-void screen_print_tracker(ez::tracking_wheel *tracker, std::string name, int line) {
+void screen_print_tracker(ez::tracking_wheel* tracker, std::string name, int line) {
   std::string tracker_value = "", tracker_width = "";
   // Check if the tracker exists
   if (tracker != nullptr) {
@@ -252,12 +251,9 @@ void ez_template_extras() {
 void opcontrol() {
   // This is preference to what you like to drive on
 
-
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
-
   pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
-
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
@@ -265,8 +261,7 @@ void opcontrol() {
 
     // chassis.opcontrol_tank();  // Tank control
 
-
-    chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
+    chassis.opcontrol_arcade_standard(ez::SPLIT);  // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
@@ -275,29 +270,31 @@ void opcontrol() {
     // Put more user control code here!
     // . . .
 
-    if (master.get_digital(DIGITAL_DOWN)) {
-      chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
-      chassis.pid_wait_quick_chain();
-      master.rumble(".");
+    // Turn Hotkeys
 
-    } else if (master.get_digital(DIGITAL_B)) {
-      chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
-      chassis.pid_wait_quick_chain();
-      master.rumble(".");
+    // if (master.get_digital(DIGITAL_DOWN)) {
+    //   chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
+    //   chassis.pid_wait_quick_chain();
+    //   master.rumble(".");
 
-      // 45 degrees
+    // } else if (master.get_digital(DIGITAL_B)) {
+    //   chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
+    //   chassis.pid_wait_quick_chain();
+    //   master.rumble(".");
 
-    } else if (master.get_digital(DIGITAL_Y)) {
-      chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
-      chassis.pid_wait_quick_chain();
-      master.rumble(".");
+    //   // 45 degrees
 
-    } else if (master.get_digital(DIGITAL_RIGHT)) {
-      master.rumble(".");
-      chassis.pid_turn_relative_set(-45_deg, TURN_SPEED);
-      chassis.pid_wait_quick_chain();
-      master.rumble(".");
-    }
+    // } else if (master.get_digital(DIGITAL_Y)) {
+    //   chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    //   chassis.pid_wait_quick_chain();
+    //   master.rumble(".");
+
+    // } else if (master.get_digital(DIGITAL_RIGHT)) {
+    //   master.rumble(".");
+    //   chassis.pid_turn_relative_set(-45_deg, TURN_SPEED);
+    //   chassis.pid_wait_quick_chain();
+    //   master.rumble(".");
+    // }
 
     // ---------
 
@@ -321,8 +318,6 @@ void opcontrol() {
 
     optical_sensor.set_led_pwm(50);
 
-    int blueBalls;
-
     if (master.get_digital(DIGITAL_L2)) {
       intake.move(127);
     } else if (master.get_digital(DIGITAL_L1)) {
@@ -331,23 +326,34 @@ void opcontrol() {
       intake.move(0);
     }
 
-    if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
-      intakeTop.move(-127);
-      pros::delay(300);
-      intakeTop.move(0);
-    } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
+    if (master.get_digital(DIGITAL_R2)) {
       intakeTop.move(127);
     } else if (master.get_digital(DIGITAL_R1)) {
       intakeTop.move(-127);
     } else {
       intakeTop.move(0);
     }
-  
-      scraper.button_toggle(master.get_digital(DIGITAL_A));
- 
+
+    // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
+    //   intakeTop.move(-127);
+    //   pros::delay(300);
+    //   intakeTop.move(0);
+    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
+    //   intakeTop.move(127);
+    // } else if (master.get_digital(DIGITAL_R1)) {
+    //   intakeTop.move(-127);
+    // } else {
+    //   intakeTop.move(0);
+    // }
+
+    scraper.button_toggle(master.get_digital(DIGITAL_A));
+
+    intakePiston.button_toggle(master.get_digital(DIGITAL_LEFT));
+
+    horns.button_toggle(master.get_digital(DIGITAL_X));
 
 
-
+    
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }

@@ -463,14 +463,13 @@ void genericDrive(OrientationEnum orientation) {
 
   master.rumble(".");
 
-  // Move center left
-
+  // Move center
   turnRel(180 * orientation);
   drive(8);
 
   master.rumble(".");
 
-  // Move long left
+  // Move long
 
   drive(-23);  // -26
   if (orientation == LEFT) {
@@ -482,6 +481,51 @@ void genericDrive(OrientationEnum orientation) {
   }
 }
 
+void soloWinPoint() {
+  // Right side
+
+  turnRel(26);
+  intake.move(127);
+  drive(16);  // 28 in
+  chassis.pid_drive_set(12, 20);
+  chassis.pid_wait();
+  intake.move(0);
+
+  turnRel(-45);
+  drive(13);
+
+  intake.move(-127);
+  pros::delay(300);
+  intake.move(0);
+
+  drive(-6);
+  turnRel(-97);
+  drive(28);
+  intake.move(120);
+  chassis.pid_drive_set(10, 20);
+  chassis.pid_wait();
+  intake.move(0);
+
+  turnRel(-135);
+  drive(-13);
+  intakeTop.move(-127);
+  pros::delay(300);
+  intakeTop.move(0);
+  drive(52);  // 50
+
+  scraper.set(true);
+  turnRel(180);
+  drive(12);
+  intake.move(120);
+  pros::delay(1000);
+  intake.move(0);
+
+  drive(-26);  // -16
+  chassis.pid_drive_set(-3, 20);
+  chassis.pid_wait();
+  intake.move(127);
+  intakeTop.move(127);
+}
 
 void drive_left() {
   genericDrive(LEFT);  // Dont forget to change back to LEFT !!!
@@ -496,6 +540,12 @@ void drive_right() {
 
   master.rumble("..-");
 };
+
+void drive_swp() {
+  soloWinPoint();
+
+  master.rumble("..-");
+}
 
 // with curve
 
