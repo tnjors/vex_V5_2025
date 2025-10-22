@@ -282,7 +282,7 @@ void opcontrol() {
     //   chassis.pid_wait_quick_chain();
     //   master.rumble(".");
 
-    //   // 45 degrees
+    // 45 degrees
 
     // } else if (master.get_digital(DIGITAL_Y)) {
     //   chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
@@ -318,13 +318,15 @@ void opcontrol() {
 
     optical_sensor.set_led_pwm(50);
 
-    if (master.get_digital(DIGITAL_L2)) {
-      intake.move(127);
-    } else if (master.get_digital(DIGITAL_L1)) {
-      intake.move(-127);
-    } else {
-      intake.move(0);
-    }
+    bool colorToggle(false);     // if True -> blue
+
+    // if (master.get_digital(DIGITAL_L2)) {
+    //   intake.move(127);
+    // } else if (master.get_digital(DIGITAL_L1)) {
+    //   intake.move(-127);
+    // } else {
+    //   intake.move(0);
+    // }
 
     if (master.get_digital(DIGITAL_R2)) {
       intakeTop.move(127);
@@ -332,6 +334,28 @@ void opcontrol() {
       intakeTop.move(-127);
     } else {
       intakeTop.move(0);
+    }
+
+    if ((colorToggle) && (master.get_digital(DIGITAL_UP))) {
+      colorToggle = false;
+      master.rumble(".");
+    } else if ((!colorToggle) && (master.get_digital(DIGITAL_UP))) {
+      colorToggle = true;
+      master.rumble("..");
+    }
+
+    if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
+      intakeTop.move(-127);
+      pros::delay(300);
+      intakeTop.move(0);
+    } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (!colorToggle)) {
+      intakeTop.move(127);
+    } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (colorToggle)) {
+      intakeTop.move(127);
+      pros::delay(300);
+      intakeTop.move(0);
+    } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (!colorToggle)) {
+      intakeTop.move(-127);
     }
 
     // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
@@ -351,9 +375,6 @@ void opcontrol() {
     intakePiston.button_toggle(master.get_digital(DIGITAL_LEFT));
 
     horns.button_toggle(master.get_digital(DIGITAL_X));
-
-
-    
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }

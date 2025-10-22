@@ -8,7 +8,7 @@ extern Drive chassis;
 // Your motors, sensors, etc. should go here.  Below are examples
 
 inline pros::MotorGroup intake({-6, -5});
-inline pros::MotorGroup intakeTop({4});
+inline pros::MotorGroup intakeTop({16});
 
 inline ez::Piston scraper('A');
 inline ez::Piston horns('E');

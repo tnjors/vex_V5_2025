@@ -464,14 +464,17 @@ void genericDrive(OrientationEnum orientation) {
   master.rumble(".");
 
   // Move center
-  turnRel(180 * orientation);
-  drive(8);
-
+  scraper.set(true);
+  turnRel(180);
+  drive(12);
+  intake.move(120);
+  pros::delay(1000);
+  intake.move(0);
   master.rumble(".");
 
   // Move long
 
-  drive(-23);  // -26
+  drive(-26);  // -26
   if (orientation == LEFT) {
     chassis.pid_drive_set(-3, 20);
     chassis.pid_wait();
@@ -479,6 +482,11 @@ void genericDrive(OrientationEnum orientation) {
     chassis.pid_drive_set(-4, 20);
     chassis.pid_wait();
   }
+
+  intake.move(127);
+  intakeTop.move(127);
+
+  pros::delay(5000);
 }
 
 void soloWinPoint() {
@@ -529,14 +537,12 @@ void soloWinPoint() {
 
 void drive_left() {
   genericDrive(LEFT);  // Dont forget to change back to LEFT !!!
-  intakeSort(60, 1000);
 
   master.rumble("..-");
 };
 
 void drive_right() {
   genericDrive(RIGHT);
-  intakeSort(60, 1000);
 
   master.rumble("..-");
 };
