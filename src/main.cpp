@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define OPTICAL_PORT 19
+#define OPTICAL_PORT 12
 
 const int TURN_SPEED = 110;
 
@@ -12,10 +12,10 @@ const int TURN_SPEED = 110;
 // Chassis constructor
 ez::Drive chassis(
     // These are for the drive motors, the first motor is used for distance sensing!
-    {-1, -2, -3},  // Left Chassis Ports (negative port will reverse it!)
-    {7, 8, 10},    // Right Chassis Ports (negative port will reverse it!)
+    {-1, 2, -3},  // Left Chassis Ports (negative port will reverse it!)
+    {10, -9, 8},  // Right Chassis Ports (negative port will reverse it!)
 
-    18,    // IMU Port
+    6,     // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);  // Wheel RPM = cartridge * (motor gear / wheel gear)
 
@@ -62,21 +62,7 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      // {"Drive\n\nDrive forward and come back", drive_example},
-      // {"Turn\n\nTurn 3 times.", turn_example},
-      // {"Drive and Turn\n\nDrive forward, turn, come back", drive_and_turn},
-      // {"Drive and Turn\n\nSlow down during drive", wait_until_change_speed},
-      // {"Swing Turn\n\nSwing in an 'S' curve", swing_example},
-      // {"Motion Chaining\n\nDrive forward, turn, and come back, but blend everything together :D", motion_chaining},
-      // {"Combine all 3 movements", combining_movements},
-      // {"Interference\n\nAfter driving forward, robot performs differently if interfered or not", interfered_example},
-      // {"Simple Odom\n\nThis is the same as the drive example, but it uses odom instead!", odom_drive_example},
-      // {"Pure Pursuit\n\nGo to (0, 30) and pass through (6, 10) on the way.  Come back to (0, 0)", odom_pure_pursuit_example},
-      // {"Pure Pursuit Wait Until\n\nGo to (24, 24) but start running an intake once the robot passes (12, 24)", odom_pure_pursuit_wait_until_example},
-      // {"Boomerang\n\nGo to (0, 24, 45) then come back to (0, 0, 0)", odom_boomerang_example},
-      // {"Boomerang Pure Pursuit\n\nGo to (0, 24, 45) on the way to (24, 24) then come back to (0, 0, 0)", odom_boomerang_injected_pure_pursuit_example},
-      // {"Measure Offsets\n\nThis will turn the robot a bunch of times and calculate your offsets for your tracking wheels.", measure_offsets},
-
+      {"Drive1\n\nSkills Code", drive_skills},
       {"Drive1\n\nSolo Win Point Right", drive_swp},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
       {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
@@ -318,7 +304,7 @@ void opcontrol() {
 
     optical_sensor.set_led_pwm(50);
 
-    bool colorToggle(false);     // if True -> blue
+    bool colorToggle(false);  // if True -> blue
 
     // if (master.get_digital(DIGITAL_L2)) {
     //   intake.move(127);
@@ -336,27 +322,35 @@ void opcontrol() {
       intakeTop.move(0);
     }
 
-    if ((colorToggle) && (master.get_digital(DIGITAL_UP))) {
-      colorToggle = false;
-      master.rumble(".");
-    } else if ((!colorToggle) && (master.get_digital(DIGITAL_UP))) {
-      colorToggle = true;
-      master.rumble("..");
+    if (master.get_digital(DIGITAL_L2)) {
+      intake.move(127);
+    } else if (master.get_digital(DIGITAL_L1)) {
+      intake.move(-127);
+    } else {
+      intake.move(0);
     }
 
-    if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
-      intakeTop.move(-127);
-      pros::delay(300);
-      intakeTop.move(0);
-    } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (!colorToggle)) {
-      intakeTop.move(127);
-    } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (colorToggle)) {
-      intakeTop.move(127);
-      pros::delay(300);
-      intakeTop.move(0);
-    } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (!colorToggle)) {
-      intakeTop.move(-127);
-    }
+    // if ((colorToggle) && (master.get_digital(DIGITAL_UP))) {
+    //   colorToggle = false;
+    //   master.rumble(".");
+    // } else if ((!colorToggle) && (master.get_digital(DIGITAL_UP))) {
+    //   colorToggle = true;
+    //   master.rumble("..");
+    // }
+
+    // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
+    //   intakeTop.move(-127);
+    //   pros::delay(300);
+    //   intakeTop.move(0);
+    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (!colorToggle)) {
+    //   intakeTop.move(127);
+    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (colorToggle)) {
+    //   intakeTop.move(127);
+    //   pros::delay(300);
+    //   intakeTop.move(0);
+    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (!colorToggle)) {
+    //   intakeTop.move(-127);
+    // }
 
     // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
     //   intakeTop.move(-127);

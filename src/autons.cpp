@@ -503,7 +503,7 @@ void soloWinPoint() {
   drive(13);
 
   intake.move(-127);
-  pros::delay(300);
+  pros::delay(600);
   intake.move(0);
 
   drive(-6);
@@ -517,7 +517,7 @@ void soloWinPoint() {
   turnRel(-135);
   drive(-13);
   intakeTop.move(-127);
-  pros::delay(300);
+  pros::delay(600);  // 300 is one ball
   intakeTop.move(0);
   drive(52);  // 50
 
@@ -535,6 +535,39 @@ void soloWinPoint() {
   intakeTop.move(127);
 }
 
+void skills() {
+  drive(35);
+  turnRel(-90);
+  scraper.set(false);  // reverse
+
+  drive(12);
+  intake.move(127);
+  pros::delay(3000);
+  intake.move(0);
+
+  scraper.set(true);
+
+  drive(-12);
+  turnRel(135);  // 45
+  chassis.pid_drive_set(27, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  turnRel(90);
+  drive(40);
+  chassis.pid_drive_set(8, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+
+  turnRel(45);//135
+  drive(27);
+
+  drive(12);
+
+  drive(-24);
+  chassis.pid_drive_set(-3, 20);
+  chassis.pid_wait();
+}
+
+/// Callout Funcs
+
 void drive_left() {
   genericDrive(LEFT);  // Dont forget to change back to LEFT !!!
 
@@ -551,6 +584,12 @@ void drive_swp() {
   soloWinPoint();
 
   master.rumble("..-");
+}
+
+void drive_skills() {
+  skills();
+
+  master.rumble("-.-");
 }
 
 // with curve
