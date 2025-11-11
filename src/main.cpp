@@ -16,7 +16,7 @@ ez::Drive chassis(
     {10, -9, 8},  // Right Chassis Ports (negative port will reverse it!)
 
     6,     // IMU Port
-    3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+    3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)f
     450);  // Wheel RPM = cartridge * (motor gear / wheel gear)
 
 // Uncomment the trackers you're using here!
@@ -62,10 +62,10 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+      {"Drive1\n\nSkills Code", drive_skills},
       {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
       {"Drive1\n\nSolo Win Point Right", drive_swp},
-      {"Drive1\n\nSkills Code", drive_skills},
 
   });
 
@@ -304,72 +304,87 @@ void opcontrol() {
 
     optical_sensor.set_led_pwm(50);
 
-    bool colorToggle(false);  // if True -> blue
+    bool colorToggle(true);  // if True -> blue
 
-    // if (master.get_digital(DIGITAL_L2)) {
-    //   intake.move(127);
-    // } else if (master.get_digital(DIGITAL_L1)) {
-    //   intake.move(-127);
-    // } else {
-    //   intake.move(0);
-    // }
-
-    if (master.get_digital(DIGITAL_R2)) {
-      intakeTop.move(127);
-    } else if (master.get_digital(DIGITAL_R1)) {
-      intakeTop.move(-127);
-    } else {
-      intakeTop.move(0);
+    if (colorToggle == true && master.get_digital_new_press(DIGITAL_UP)) {
+      colorToggle = false;
+      master.rumble(".");
+    } else if (colorToggle == false && master.get_digital_new_press(DIGITAL_UP)) {
+      colorToggle = true;
+      master.rumble("..");
     }
 
-    if (master.get_digital(DIGITAL_L2)) {
-      intake.move(127);
-    } else if (master.get_digital(DIGITAL_L1)) {
-      intake.move(-127);
-    } else {
-      intake.move(0);
+    // while (master.get_digital(DIGITAL_L2)) {
+    //   if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
+    //     intakeTop.move(-127);
+    //     pros::delay(300);
+    //     intakeTop.move(0);
+    //   }
+
+      // if (master.get_digital(DIGITAL_L2)) {
+      //   intake.move(127);
+      // } else if (master.get_digital(DIGITAL_L1)) {
+      //   intake.move(-127);
+      // } else {
+      //   intake.move(0);
+      // }
+
+      if (master.get_digital(DIGITAL_R2)) {
+        intakeTop.move(127);
+      } else if (master.get_digital(DIGITAL_R1)) {
+        intakeTop.move(-127);
+      } else {
+        intakeTop.move(0);
+      }
+
+      if (master.get_digital(DIGITAL_L2)) {
+        intake.move(127);
+      } else if (master.get_digital(DIGITAL_L1)) {
+        intake.move(-127);
+      } else {
+        intake.move(0);
+      }
+
+      // if ((colorToggle) && (master.get_digital(DIGITAL_UP))) {
+      //   colorToggle = false;
+      //   master.rumble(".");
+      // } else if ((!colorToggle) && (master.get_digital(DIGITAL_UP))) {
+      //   colorToggle = true;
+      //   master.rumble("..");
+      // }
+
+      // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
+      //   intakeTop.move(-127);
+      //   pros::delay(300);
+      //   intakeTop.move(0);
+      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (!colorToggle)) {
+      //   intakeTop.move(127);
+      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (colorToggle)) {
+      //   intakeTop.move(127);
+      //   pros::delay(300);
+      //   intakeTop.move(0);
+      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (!colorToggle)) {
+      //   intakeTop.move(-127);
+      // }
+
+      // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
+      //   intakeTop.move(-127);
+      //   pros::delay(300);
+      //   intakeTop.move(0);
+      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
+      //   intakeTop.move(127);
+      // } else if (master.get_digital(DIGITAL_R1)) {
+      //   intakeTop.move(-127);
+      // } else {
+      //   intakeTop.move(0);
+      // }
+
+      scraper.button_toggle(master.get_digital(DIGITAL_A));
+
+      horns.button_toggle(master.get_digital(DIGITAL_X));
+
+      doublePark.button_toggle(master.get_digital(DIGITAL_B));
+
+      pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
     }
-
-    // if ((colorToggle) && (master.get_digital(DIGITAL_UP))) {
-    //   colorToggle = false;
-    //   master.rumble(".");
-    // } else if ((!colorToggle) && (master.get_digital(DIGITAL_UP))) {
-    //   colorToggle = true;
-    //   master.rumble("..");
-    // }
-
-    // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
-    //   intakeTop.move(-127);
-    //   pros::delay(300);
-    //   intakeTop.move(0);
-    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (!colorToggle)) {
-    //   intakeTop.move(127);
-    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (colorToggle)) {
-    //   intakeTop.move(127);
-    //   pros::delay(300);
-    //   intakeTop.move(0);
-    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (!colorToggle)) {
-    //   intakeTop.move(-127);
-    // }
-
-    // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
-    //   intakeTop.move(-127);
-    //   pros::delay(300);
-    //   intakeTop.move(0);
-    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
-    //   intakeTop.move(127);
-    // } else if (master.get_digital(DIGITAL_R1)) {
-    //   intakeTop.move(-127);
-    // } else {
-    //   intakeTop.move(0);
-    // }
-
-    scraper.button_toggle(master.get_digital(DIGITAL_A));
-
-    intakePiston.button_toggle(master.get_digital(DIGITAL_LEFT));
-
-    horns.button_toggle(master.get_digital(DIGITAL_X));
-
-    pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
-}
