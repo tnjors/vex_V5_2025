@@ -4,6 +4,32 @@
 
 const int TURN_SPEED = 110;
 
+enum TeamColor {  // Team Color
+  BLUE = 0,
+  RED = 1
+};
+
+bool isBlue(double hue) {
+  return hue > 200 && hue <= 290;
+}
+bool isRed(double hue) {
+  return hue > 290 || hue <= 45;
+}
+
+bool isTeamCube(TeamColor teamColor, double hue) {
+  return teamColor == BLUE ? isBlue(hue) : isRed(hue);
+}
+
+bool isOpponentCube(TeamColor teamColor, double hue) {
+  return teamColor == BLUE ? isRed(hue) : isBlue(hue);
+}
+
+void dropCube(){
+  intakeTop.move(-127);
+  pros::delay(300);
+  intakeTop.move(0);
+}
+
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
@@ -241,6 +267,10 @@ void opcontrol() {
 
   pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
 
+  optical_sensor.set_led_pwm(50);
+
+  TeamColor teamColor = BLUE;  // if True -> blue
+
   while (true) {
     // Gives you some extras to make EZ-Template ezier
     ez_template_extras();
@@ -256,33 +286,7 @@ void opcontrol() {
     // Put more user control code here!
     // . . .
 
-    // Turn Hotkeys
-
-    // if (master.get_digital(DIGITAL_DOWN)) {
-    //   chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
-    //   chassis.pid_wait_quick_chain();
-    //   master.rumble(".");
-
-    // } else if (master.get_digital(DIGITAL_B)) {
-    //   chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
-    //   chassis.pid_wait_quick_chain();
-    //   master.rumble(".");
-
-    // 45 degrees
-
-    // } else if (master.get_digital(DIGITAL_Y)) {
-    //   chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
-    //   chassis.pid_wait_quick_chain();
-    //   master.rumble(".");
-
-    // } else if (master.get_digital(DIGITAL_RIGHT)) {
-    //   master.rumble(".");
-    //   chassis.pid_turn_relative_set(-45_deg, TURN_SPEED);
-    //   chassis.pid_wait_quick_chain();
-    //   master.rumble(".");
-    // }
-
-    // ---------
+    // --------- No Color Sort -------
 
     // if (master.get_digital(DIGITAL_L2)) {
     //   intake.move(127);
@@ -300,91 +304,74 @@ void opcontrol() {
     //   intakeTop.move(0);
     // }
 
-    // ----Color Sort----
+    // ---------------- Color Toggle -------------------
 
-    optical_sensor.set_led_pwm(50);
-
-    bool colorToggle(true);  // if True -> blue
-
-    if (colorToggle == true && master.get_digital_new_press(DIGITAL_UP)) {
-      colorToggle = false;
-      master.rumble(".");
-    } else if (colorToggle == false && master.get_digital_new_press(DIGITAL_UP)) {
-      colorToggle = true;
-      master.rumble("..");
+    if (master.get_digital_new_press(DIGITAL_UP)) {
+      if (teamColor == RED) {
+        teamColor = BLUE;
+        master.rumble(".");
+      } else if (teamColor == BLUE) {
+        teamColor = RED;
+        master.rumble("..");
+      }
     }
 
-    // while (master.get_digital(DIGITAL_L2)) {
-    //   if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
-    //     intakeTop.move(-127);
-    //     pros::delay(300);
-    //     intakeTop.move(0);
-    //   }
+    // ---------------- Dynamic Color Toggle -------------------
 
-      // if (master.get_digital(DIGITAL_L2)) {
-      //   intake.move(127);
-      // } else if (master.get_digital(DIGITAL_L1)) {
-      //   intake.move(-127);
-      // } else {
-      //   intake.move(0);
-      // }
+    // TODO: check what color hue is returned when no cube is on top of the sensor
 
-      if (master.get_digital(DIGITAL_R2)) {
-        intakeTop.move(127);
-      } else if (master.get_digital(DIGITAL_R1)) {
-        intakeTop.move(-127);
-      } else {
-        intakeTop.move(0);
-      }
+    // while (master.get_digital(DIGITAL_L2))
 
-      if (master.get_digital(DIGITAL_L2)) {
-        intake.move(127);
-      } else if (master.get_digital(DIGITAL_L1)) {
-        intake.move(-127);
-      } else {
-        intake.move(0);
-      }
-
-      // if ((colorToggle) && (master.get_digital(DIGITAL_UP))) {
-      //   colorToggle = false;
-      //   master.rumble(".");
-      // } else if ((!colorToggle) && (master.get_digital(DIGITAL_UP))) {
-      //   colorToggle = true;
-      //   master.rumble("..");
-      // }
-
-      // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (colorToggle)) {
-      //   intakeTop.move(-127);
-      //   pros::delay(300);
-      //   intakeTop.move(0);
-      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (!colorToggle)) {
-      //   intakeTop.move(127);
-      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120) && (colorToggle)) {
-      //   intakeTop.move(127);
-      //   pros::delay(300);
-      //   intakeTop.move(0);
-      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200) && (!colorToggle)) {
-      //   intakeTop.move(-127);
-      // }
-
-      // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
-      //   intakeTop.move(-127);
-      //   pros::delay(300);
-      //   intakeTop.move(0);
-      // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
-      //   intakeTop.move(127);
-      // } else if (master.get_digital(DIGITAL_R1)) {
-      //   intakeTop.move(-127);
-      // } else {
-      //   intakeTop.move(0);
-      // }
-
-      scraper.button_toggle(master.get_digital(DIGITAL_A));
-
-      horns.button_toggle(master.get_digital(DIGITAL_X));
-
-      doublePark.button_toggle(master.get_digital(DIGITAL_B));
-
-      pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
+    if (master.get_digital(DIGITAL_R2) && isOpponentCube(teamColor, optical_sensor.get_hue())) {
+      dropCube();
+    } else if (master.get_digital(DIGITAL_R2)){ // && isTeamCube(teamColor, optical_sensor.get_hue())
+      intakeTop.move(127);
+    } else if (master.get_digital(DIGITAL_R1)) {
+      intakeTop.move(-127);
+    } else {
+      intakeTop.move(0);
     }
+
+    // ---------------- No Color Sort -------------------
+
+    // if (master.get_digital(DIGITAL_R2)) {
+    //   intakeTop.move(127);
+    // } else if (master.get_digital(DIGITAL_R1)) {
+    //   intakeTop.move(-127);
+    // } else {
+    //   intakeTop.move(0);
+    // }
+
+    // if (master.get_digital(DIGITAL_L2)) {
+    //   intake.move(127);
+    // } else if (master.get_digital(DIGITAL_L1)) {
+    //   intake.move(-127);
+    // } else {
+    //   intake.move(0);
+    // }
+
+    // ---------------- Old Color Sort -------------------
+
+    // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
+    //   intakeTop.move(-127);
+    //   pros::delay(300);
+    //   intakeTop.move(0);
+    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
+    //   intakeTop.move(127);
+    // } else if (master.get_digital(DIGITAL_R1)) {
+    //   intakeTop.move(-127);
+    // } else {
+    //   intakeTop.move(0);
+    // }
+
+    // ----------------------------------------------------
+
+    scraper.button_toggle(master.get_digital(DIGITAL_A));
+
+    horns.button_toggle(master.get_digital(DIGITAL_X));
+
+    doublePark.button_toggle(master.get_digital(DIGITAL_B));
+
+    pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
+}
