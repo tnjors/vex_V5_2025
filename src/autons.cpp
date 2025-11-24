@@ -433,11 +433,14 @@ void intakeSort(int n, int x) {
 void genericDrive(OrientationEnum orientation) {
   // Move center left
 
-  turnRel(26 * orientation);
+  turnRel(29 * orientation);  // used to be 26 deg
   intake.move(127);
+  horns.set(true);
+
   drive(16);  // 28 in
-  chassis.pid_drive_set(12, 20);
+  chassis.pid_drive_set(12, 30);
   chassis.pid_wait();
+  pros::delay(500);
   intake.move(0);
 
   if (orientation == LEFT) {
@@ -453,7 +456,7 @@ void genericDrive(OrientationEnum orientation) {
     drive(13);
 
     intake.move(-127);
-    pros::delay(700);
+    pros::delay(1000);
     intake.move(0);
     /// Fix distances.
     drive(-6);
@@ -465,18 +468,23 @@ void genericDrive(OrientationEnum orientation) {
 
   // Move center
   scraper.set(true);
+  horns.set(true);
   turnRel(180);
   // drive(12);
-  chassis.pid_drive_set(15, 127);//13
-  chassis.pid_wait();
 
   intake.move(120);
-  pros::delay(1500);
-  intake.move(0);
+
+  drive(15);
+  drive(-0.5);
+
+  pros::delay(1000);
+  // intake.move(0);
   // scraper.set(false);
   master.rumble(".");
 
   // Move long
+
+  horns.set(false);
 
   drive(-33);  // -26 || 29
   // if (orientation == LEFT) {
@@ -487,13 +495,15 @@ void genericDrive(OrientationEnum orientation) {
   // chassis.pid_wait();
 
   // }
-
   intakeTop.move(127);
   pros::delay(500);
   intake.move(127);
 
+  pros::delay(2000);
 
-  pros::delay(5000);
+  drive(12);
+  horns.set(true);
+  drive(-14);
 }
 
 void soloWinPoint() {
@@ -501,8 +511,8 @@ void soloWinPoint() {
 
   turnRel(26);
   intake.move(127);
-  drive(16);  // 28 in
-  chassis.pid_drive_set(12, 20);
+  drive(16);                      // 28 in
+  chassis.pid_drive_set(12, 40);  // speed 20
   chassis.pid_wait();
   intake.move(0);
 
@@ -517,89 +527,168 @@ void soloWinPoint() {
   turnRel(-97);
   drive(28);
   intake.move(120);
-  chassis.pid_drive_set(10, 20);
+  chassis.pid_drive_set(10, 40);
   chassis.pid_wait();
-  intake.move(0);
+  // intake.move(0);
 
   turnRel(-135);
-  drive(-13);
+  drive(-14);  // 13
   intake.move(127);
   intakeTop.move(-127);
   pros::delay(900);  // 300 is one ball
   intakeTop.move(0);
   intake.move(0);
 
-
-  drive(50);  // 50
+  drive(53);  // 50
 
   scraper.set(true);
+  horns.set(true);
   turnRel(180);
-  drive(12);
   intake.move(120);
+  drive(14);
+  // intake.move(120);
   pros::delay(1000);
   intake.move(0);
 
+  horns.set(false);
   drive(-29);  // -16
   intake.move(127);
   intakeTop.move(127);
 }
 
+// void skills() {  /// old
+//   drive(37);
+//   turnRel(-90);
+//   scraper.set(true);  // reverse
+//   pros::delay(150);
+
+//   drive(12);
+//   // intake.move(127);
+//   // pros::delay(3000);
+//   // intake.move(0);
+
+//   intake.move(120);
+//   pros::delay(1500);
+//   intake.move(0);
+//   scraper.set(false);
+//   master.rumble(".");
+
+//   drive(-32);
+//   intakeTop.move(127);
+//   pros::delay(500);
+//   intake.move(127);
+//   pros::delay(2000);
+//   intake.move(0);
+//   intakeTop.move(0);
+
+//   drive(12);
+//   turnRel(135);  // 45
+//   drive(27);
+//   turnRel(90);
+//   drive(48);
+//   turnRel(45);  // 135
+//   drive(24);
+//   turnRel(90);
+
+//   scraper.set(true);  // reverse
+
+//   drive(12);
+
+//   intake.move(120);
+
+//   pros::delay(1500);
+//   intake.move(0);
+//   scraper.set(false);
+//   master.rumble(".");
+
+//   drive(-26);
+//   intakeTop.move(127);
+//   pros::delay(500);
+//   intake.move(127);
+//   pros::delay(2000);
+//   intake.move(0);
+//   intakeTop.move(0);
+// }
+
 void skills() {
+  turnRel(29);  // used to be 26 deg
+  intake.move(127);
+  horns.set(true);
 
+  drive(16);  // 28 in
+  chassis.pid_drive_set(12, 30);
+  chassis.pid_wait();
+  pros::delay(500);
+  intake.move(0);
 
-  drive(37);
-  turnRel(-90);
-  scraper.set(true);  // reverse
-  pros::delay(150);
+  turnRel(-45);
+  drive(13);
 
-  drive(12);
-  // intake.move(127);
-  // pros::delay(3000);
+  intake.move(-127);
+  pros::delay(1000);
+  intake.move(0);
+
+  drive(-6);
+  turnRel(-97);
+  drive(33);
+  intake.move(120);
+  chassis.pid_drive_set(10, 40);
+  chassis.pid_wait();
   // intake.move(0);
 
-  intake.move(120);
-  pros::delay(1500);
+  turnRel(-135);
+  // horns.set(false);
+  drive(-16);  // 14
+  intake.move(127);
+  intakeTop.move(-127);
+  pros::delay(900);  // 300 is one ball
+  intakeTop.move(0);
   intake.move(0);
-  scraper.set(false);
-  master.rumble(".");
 
-  drive(-32);
+  drive(52);  // 45
+
+  scraper.set(true);
+  horns.set(true);
+  turnRel(180);
+
+  intake.move(120);
+
+  drive(15);
+  drive(-0.5);
+
+  pros::delay(2000);
+
+  horns.set(false);
+
+  drive(-33);  // -26 || 29
+
   intakeTop.move(127);
   pros::delay(500);
   intake.move(127);
-  pros::delay(2000);
-  intake.move(0);
-  intakeTop.move(0);
 
+  pros::delay(2000);
+
+  intakeTop.move(0);
+  pros::delay(500);
+  intake.move(0);
 
   drive(12);
-  turnRel(135);  // 45
-  drive(27);
+  horns.set(true);
+  drive(-14);
+
+  scraper.set(false);
+
+  drive(14);
   turnRel(90);
   drive(48);
-  turnRel(45);  // 135
-  drive(24);
-  turnRel(90);
-
-  scraper.set(true);  // reverse
-
-  drive(12);
+  turnRel(180);
 
   intake.move(120);
 
-  pros::delay(1500);
-  intake.move(0);
-  scraper.set(false);
-  master.rumble(".");
-
-  drive(-26);
-  intakeTop.move(127);
-  pros::delay(500);
-  intake.move(127);
-  pros::delay(2000);
-  intake.move(0);
-  intakeTop.move(0);
+  drive(30);
 }
+
+// }
 
 /// Callout Funcs
 
@@ -627,6 +716,9 @@ void drive_skills() {
   master.rumble("-.-");
 }
 
+void driveInch(){
+  drive(2);
+}
 // with curve
 
 // void leftDrive() {

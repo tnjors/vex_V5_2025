@@ -1,34 +1,35 @@
 #include "main.h"
 
-#define OPTICAL_PORT 12
+#define OPTICAL_PORT 13
+#define DISTANCE_PORT_INTAKE 5
 
 const int TURN_SPEED = 110;
 
-enum TeamColor {  // Team Color
-  BLUE = 0,
-  RED = 1
-};
+// enum TeamColor {  // Team Color
+//   BLUE = 0,
+//   RED = 1
+// };
 
-bool isBlue(double hue) {
-  return hue > 200 && hue <= 290;
-}
-bool isRed(double hue) {
-  return hue > 290 || hue <= 45;
-}
+// bool isBlue(double hue) {
+//   return hue > 200 && hue <= 290;
+// }
+// bool isRed(double hue) {
+//   return hue > 290 || hue <= 45;
+// }
 
-bool isTeamCube(TeamColor teamColor, double hue) {
-  return teamColor == BLUE ? isBlue(hue) : isRed(hue);
-}
+// bool isTeamCube(TeamColor teamColor, double hue) {
+//   return teamColor == BLUE ? isBlue(hue) : isRed(hue);
+// }
 
-bool isOpponentCube(TeamColor teamColor, double hue) {
-  return teamColor == BLUE ? isRed(hue) : isBlue(hue);
-}
+// bool isOpponentCube(TeamColor teamColor, double hue) {
+//   return teamColor == BLUE ? isRed(hue) : isBlue(hue);
+// }
 
-void dropCube(){
-  intakeTop.move(-127);
-  pros::delay(300);
-  intakeTop.move(0);
-}
+// void dropCube() {
+//   intakeTop.move(-127);
+//   pros::delay(300);
+//   intakeTop.move(0);
+// }
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -88,10 +89,12 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      {"Drive1\n\nSkills Code", drive_skills},
-      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
+
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
+      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
+      {"Drive1\n\nSkills Code", drive_skills},
       {"Drive1\n\nSolo Win Point Right", drive_swp},
+      {"Drive1\n\nMove An Inch", driveInch},
 
   });
 
@@ -266,14 +269,15 @@ void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
   pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
+  pros::Distance distance_sensor_intake(DISTANCE_PORT_INTAKE);
 
-  optical_sensor.set_led_pwm(50);
-
-  TeamColor teamColor = BLUE;  // if True -> blue
+  // TeamColor teamColor = BLUE;  // if True -> blue
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
     ez_template_extras();
+
+    optical_sensor.set_led_pwm(50);
 
     // chassis.opcontrol_tank();  // Tank control
 
@@ -306,15 +310,15 @@ void opcontrol() {
 
     // ---------------- Color Toggle -------------------
 
-    if (master.get_digital_new_press(DIGITAL_UP)) {
-      if (teamColor == RED) {
-        teamColor = BLUE;
-        master.rumble(".");
-      } else if (teamColor == BLUE) {
-        teamColor = RED;
-        master.rumble("..");
-      }
-    }
+    // if (master.get_digital_new_press(DIGITAL_UP)) {
+    //   if (teamColor == RED) {
+    //     teamColor = BLUE;
+    //     master.rumble(".");
+    //   } else if (teamColor == BLUE) {
+    //     teamColor = RED;
+    //     master.rumble("..");
+    //   }
+    // }
 
     // ---------------- Dynamic Color Toggle -------------------
 
@@ -322,19 +326,9 @@ void opcontrol() {
 
     // while (master.get_digital(DIGITAL_L2))
 
-    if (master.get_digital(DIGITAL_R2) && isOpponentCube(teamColor, optical_sensor.get_hue())) {
-      dropCube();
-    } else if (master.get_digital(DIGITAL_R2)){ // && isTeamCube(teamColor, optical_sensor.get_hue())
-      intakeTop.move(127);
-    } else if (master.get_digital(DIGITAL_R1)) {
-      intakeTop.move(-127);
-    } else {
-      intakeTop.move(0);
-    }
-
-    // ---------------- No Color Sort -------------------
-
-    // if (master.get_digital(DIGITAL_R2)) {
+    // if (master.get_digital(DIGITAL_R2) && isOpponentCube(teamColor, optical_sensor.get_hue())) {
+    //   dropCube();
+    // } else if (master.get_digital(DIGITAL_R2)) {  // && isTeamCube(teamColor, optical_sensor.get_hue())
     //   intakeTop.move(127);
     // } else if (master.get_digital(DIGITAL_R1)) {
     //   intakeTop.move(-127);
@@ -342,13 +336,33 @@ void opcontrol() {
     //   intakeTop.move(0);
     // }
 
-    // if (master.get_digital(DIGITAL_L2)) {
-    //   intake.move(127);
-    // } else if (master.get_digital(DIGITAL_L1)) {
-    //   intake.move(-127);
-    // } else {
-    //   intake.move(0);
-    // }
+    // ---------------- No Color Sort -------------------
+
+    if (master.get_digital(DIGITAL_R2)) {
+      intakeTop.move(127);
+    } else if (master.get_digital(DIGITAL_R1)) {
+      intakeTop.move(-127);
+    } else {
+      intakeTop.move(0);
+    }
+
+    if (master.get_digital(DIGITAL_L2)) {
+      intake.move(127);
+    } else if (master.get_digital(DIGITAL_L1)) {
+      intake.move(-127);
+    } else {
+      intake.move(0);
+    }
+
+    if (master.get_digital(DIGITAL_DOWN)) {
+      intake.move(-90);
+      while (distance_sensor_intake.get() > 90) {
+        pros::delay(ez::util::DELAY_TIME);
+      }
+      // pros::delay();  // A small delay to ensure the action completes
+      intake.move(0);
+      doublePark.set(true);
+    }
 
     // ---------------- Old Color Sort -------------------
 
@@ -370,7 +384,7 @@ void opcontrol() {
 
     horns.button_toggle(master.get_digital(DIGITAL_X));
 
-    doublePark.button_toggle(master.get_digital(DIGITAL_B));
+    // doublePark.button_toggle(master.get_digital(DIGITAL_B));
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
