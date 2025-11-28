@@ -21,3 +21,4 @@ temp.errors
 *.zip
 firmware/
 .DS_Store
+project.pros
