@@ -11,6 +11,24 @@ const int DRIVE_SPEED = 110;
 const int TURN_SPEED = 110;
 const int SWING_SPEED = 110;
 
+// Additional speed constants for autonomous routines
+const int SLOW_DRIVE_SPEED = 30;
+const int MEDIUM_DRIVE_SPEED = 40;
+const int VERY_SLOW_DRIVE_SPEED = 25;
+const int INTAKE_SPEED = 127;
+const int INTAKE_MEDIUM_SPEED = 120;
+const int INTAKE_SORT_SPEED = 90;
+
+// Color sensor constants
+const int HUE_THRESHOLD_BLUE_RED = 200; // Hue values > 200 are blue, <= 200 are red
+const int OPTICAL_LED_PWM = 50;
+
+// Timing constants (in milliseconds)
+const int COLOR_SORT_DELAY = 500;
+const int RING_EJECT_DELAY = 1000;
+const int RING_INTAKE_DELAY = 900;
+const int SETTLING_DELAY = 50;
+
 enum OrientationEnum { LEFT = -1,
                        RIGHT = 1 };
 
@@ -381,13 +399,13 @@ void measure_offsets() {
 // Make your own autonomous functions here!
 // . . .
 
-// ------------------------ Self - Defined Shortcuts ( Functions ) ------------------------
-
-// Turn is in degrees
-// Drive is in Inches
+// ------------------------ Helper Functions ------------------------
 
 /**
- * Sets the robot to move forward using PID without okapi units, only using slew if globally enabled.
+ * Drive the robot forward or backward.
+ *
+ * \param n
+ *        Distance to drive in inches. Positive = forward, negative = backward.
  */
 void drive(float n) {
   chassis.pid_drive_set(n, DRIVE_SPEED);
@@ -395,7 +413,10 @@ void drive(float n) {
 }
 
 /**
- * Sets the robot to turn relative to initial heading using PID.
+ * Turn the robot relative to the current heading.
+ *
+ * \param n
+ *        Angle to turn in degrees. Positive = right, negative = left.
  */
 void turnRel(float n) {
   chassis.pid_turn_set(n, TURN_SPEED);
@@ -404,119 +425,114 @@ void turnRel(float n) {
 
 // ------------------------ Color Sort Function ------------------------
 
-pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
+pros::Optical optical_sensor(OPTICAL_PORT);
 
-/*
- * Sorts blue and red in regard to parameters.
- *    \param n
- *        Intake speed.
+/**
+ * Sorts rings by color using the optical sensor.
+ * Blue rings (hue > 200) are ejected, red rings (hue <= 200) are kept.
+ *
+ * \param n
+ *        Intake motor speed (0-127).
  * \param x
- *        Delay Between the start and end of the function.
+ *        Total duration in milliseconds before cleaning up.
  */
 void intakeSort(int n, int x) {
-  optical_sensor.set_led_pwm(50);
+  optical_sensor.set_led_pwm(OPTICAL_LED_PWM);
   intake.move(n);
-  if (optical_sensor.get_hue() > 200) {
+
+  // Blue rings (hue > 200) are ejected, red rings (hue <= 200) are kept
+  if (optical_sensor.get_hue() > HUE_THRESHOLD_BLUE_RED) {
     intakeTop.move(-n);
-    pros::delay(500);
+    pros::delay(COLOR_SORT_DELAY);
     intakeTop.move(0);
-  } else if (optical_sensor.get_hue() <= 200) {
+  } else if (optical_sensor.get_hue() <= HUE_THRESHOLD_BLUE_RED) {
     intakeTop.move(n);
   }
+
   pros::delay(x);
-  // intake.move(0);
-  // intakeTop.move(0);
+
+  // Reset LED when done
+  optical_sensor.set_led_pwm(0);
 }
 
 // ---------------------------------------------------------------------------
 
+/**
+ * Generic autonomous routine that works for both left and right sides.
+ * Picks up rings, scores in the alliance goal, and positions for endgame.
+ *
+ * \param orientation
+ *        LEFT or RIGHT to mirror the routine for the appropriate starting position
+ */
 void genericDrive(OrientationEnum orientation) {
-  // Move center left
-
-  turnRel(29 * orientation);  // used to be 26 deg
-  intake.move(127);
+  // Move to center and collect first ring
+  turnRel(29 * orientation);
+  intake.move(INTAKE_SPEED);
   horns.set(true);
 
-  drive(16);  // 28 in
-  chassis.pid_drive_set(12, 30);
+  drive(16);
+  chassis.pid_drive_set(12, SLOW_DRIVE_SPEED);
   chassis.pid_wait();
-  pros::delay(500);
+  pros::delay(COLOR_SORT_DELAY);
   intake.move(0);
 
   if (orientation == LEFT) {
     turnRel(135 * orientation);
     drive(-13);
-    intakeTop.move(-90);
-    intake.move(90);
-    pros::delay(1000);
+    intakeTop.move(-INTAKE_SORT_SPEED);
+    intake.move(INTAKE_SORT_SPEED);
+    pros::delay(RING_EJECT_DELAY);
     intakeTop.move(0);
     intake.move(0);
 
-    drive(54);  // 50
+    drive(54);
 
   } else {
     turnRel(-45);
     drive(13);
 
-    intake.move(-90);
-    pros::delay(1000);
+    intake.move(-INTAKE_SORT_SPEED);
+    pros::delay(RING_EJECT_DELAY);
     intake.move(0);
-    /// Fix distances.
+
     drive(-6);
     turnRel(135 * orientation);
-    drive(44);  // 45
+    drive(44);
   }
 
   master.rumble(".");
 
-  // Move center
+  // Move to center goal and score
   scraper.set(true);
-  pros::delay(50);
+  pros::delay(SETTLING_DELAY);
   horns.set(true);
   turnRel(180);
-  // drive(12);
 
-  intake.move(120);
-
-  // drive(13);//17
+  intake.move(INTAKE_MEDIUM_SPEED);
 
   chassis.pid_drive_set(10, DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
 
-  // drive(-0.5);
-
+  // Settling movements to ensure rings drop
   drive(-2);
   drive(3);
   horns.set(false);
 
-  // intake.move(0);
-  // scraper.set(false);
   master.rumble(".");
 
-  // Move long
+  // Move to far goal
+  drive(-33);
 
-  drive(-33);  // -26 || 29
-  // if (orientation == LEFT) {
-  //   chassis.pid_drive_set(-3, 20);
-  //   chassis.pid_wait();
-  // } else {
-  // chassis.pid_drive_set(-4, 20);
-  // chassis.pid_wait();
+  intakeTop.move(INTAKE_SPEED);
+  intake.move(INTAKE_SPEED);
 
-  // }
-  intakeTop.move(127);
-  // pros::delay(500);
-  intake.move(127);
-
-  pros::delay(1000);
+  pros::delay(RING_EJECT_DELAY);
   scraper.set(false);
   horns.set(true);
 
   drive(12);
 
-  // horns.set(true);
-  // drive(-14);
-
+  // Position for endgame
   turnRel(-135);
   drive(-14);
   turnRel(-180);
@@ -524,162 +540,115 @@ void genericDrive(OrientationEnum orientation) {
   chassis.pid_wait_quick_chain();
   horns.set(false);
   drive(-5);
+
+  // Ensure all motors are stopped
+  intake.move(0);
+  intakeTop.move(0);
 }
 
+/**
+ * Solo win point autonomous routine.
+ * Optimized path for scoring the win point goal on the right side.
+ */
 void soloWinPoint() {
-  // Right side
-
   turnRel(26);
-  intake.move(127);
-  drive(16);                      // 28 in
-  chassis.pid_drive_set(12, 40);  // speed 20
+  intake.move(INTAKE_SPEED);
+  drive(16);
+  chassis.pid_drive_set(12, MEDIUM_DRIVE_SPEED);
   chassis.pid_wait();
   intake.move(0);
 
   turnRel(-45);
   drive(13);
 
-  intake.move(-127);
-  pros::delay(900);
+  intake.move(-INTAKE_SPEED);
+  pros::delay(RING_INTAKE_DELAY);
   intake.move(0);
 
   drive(-6);
   turnRel(-97);
   drive(28);
-  intake.move(120);
-  chassis.pid_drive_set(10, 40);
+  intake.move(INTAKE_MEDIUM_SPEED);
+  chassis.pid_drive_set(10, MEDIUM_DRIVE_SPEED);
   chassis.pid_wait();
-  // intake.move(0);
 
   turnRel(-135);
-  drive(-14);  // 13
-  intake.move(127);
-  intakeTop.move(-127);
-  pros::delay(900);  // 300 is one ball
+  drive(-14);
+  intake.move(INTAKE_SPEED);
+  intakeTop.move(-INTAKE_SPEED);
+  pros::delay(RING_INTAKE_DELAY);
   intakeTop.move(0);
   intake.move(0);
 
-  drive(53);  // 50
+  drive(53);
 
   scraper.set(true);
   horns.set(true);
   turnRel(180);
-  intake.move(120);
+  intake.move(INTAKE_MEDIUM_SPEED);
   drive(14);
-  // intake.move(120);
-  pros::delay(1000);
+  pros::delay(RING_EJECT_DELAY);
   intake.move(0);
 
   horns.set(false);
-  drive(-29);  // -16
-  intake.move(127);
-  intakeTop.move(127);
+  drive(-29);
+  intake.move(INTAKE_SPEED);
+  intakeTop.move(INTAKE_SPEED);
+
+  // Ensure all motors are stopped
+  intake.move(0);
+  intakeTop.move(0);
 }
 
-// ----------- old skills -----------
-
-// void skills() {  /// old
-//   drive(37);
-//   turnRel(-90);
-//   scraper.set(true);  // reverse
-//   pros::delay(150);
-
-//   drive(12);
-//   // intake.move(127);
-//   // pros::delay(3000);
-//   // intake.move(0);
-
-//   intake.move(120);
-//   pros::delay(1500);
-//   intake.move(0);
-//   scraper.set(false);
-//   master.rumble(".");
-
-//   drive(-32);
-//   intakeTop.move(127);
-//   pros::delay(500);
-//   intake.move(127);
-//   pros::delay(2000);
-//   intake.move(0);
-//   intakeTop.move(0);
-
-//   drive(12);
-//   turnRel(135);  // 45
-//   drive(27);
-//   turnRel(90);
-//   drive(48);
-//   turnRel(45);  // 135
-//   drive(24);
-//   turnRel(90);
-
-//   scraper.set(true);  // reverse
-
-//   drive(12);
-
-//   intake.move(120);
-
-//   pros::delay(1500);
-//   intake.move(0);
-//   scraper.set(false);
-//   master.rumble(".");
-
-//   drive(-26);
-//   intakeTop.move(127);
-//   pros::delay(500);
-//   intake.move(127);
-//   pros::delay(2000);
-//   intake.move(0);
-//   intakeTop.move(0);
-// }
-
-// ---------------------------------
-
+/**
+ * Skills autonomous routine.
+ * Maximizes score by collecting and scoring multiple rings across the field.
+ */
 void skills() {
-  turnRel(29);  // used to be 26 deg
-  intake.move(127);
+  turnRel(29);
+  intake.move(INTAKE_SPEED);
   horns.set(true);
 
-  drive(16);  // 28 in
-  chassis.pid_drive_set(12, 25);
+  drive(16);
+  chassis.pid_drive_set(12, VERY_SLOW_DRIVE_SPEED);
   chassis.pid_wait();
-  pros::delay(500);
+  pros::delay(COLOR_SORT_DELAY);
   intake.move(0);
 
   turnRel(-45);
   drive(13);
 
-  intake.move(-127);
-  pros::delay(1000);
+  intake.move(-INTAKE_SPEED);
+  pros::delay(RING_EJECT_DELAY);
   intake.move(0);
 
   drive(-6);
   turnRel(-97);
   drive(33);
-  intake.move(120);
-  chassis.pid_drive_set(10, 25);
+  intake.move(INTAKE_MEDIUM_SPEED);
+  chassis.pid_drive_set(10, VERY_SLOW_DRIVE_SPEED);
   chassis.pid_wait();
-  // intake.move(0);
 
   turnRel(-135);
-  // horns.set(false);
-  drive(-16);  // 14
-  intake.move(127);
-  intakeTop.move(-127);
-  pros::delay(900);  // 300 is one ball
+  drive(-16);
+  intake.move(INTAKE_SPEED);
+  intakeTop.move(-INTAKE_SPEED);
+  pros::delay(RING_INTAKE_DELAY);
   intakeTop.move(0);
   intake.move(0);
 
-  drive(52);  // 45
+  drive(52);
 
   scraper.set(true);
   horns.set(true);
   turnRel(180);
 
-  intake.move(120);
+  intake.move(INTAKE_MEDIUM_SPEED);
 
   drive(15);
   drive(-0.5);
 
+  // Settling movements to ensure all rings score
   drive(-2);
   drive(2);
   drive(-2);
@@ -687,21 +656,20 @@ void skills() {
   drive(-2);
   drive(2);
 
-  pros::delay(500);
-  // pros::delay(2000);
+  pros::delay(COLOR_SORT_DELAY);
 
   horns.set(false);
 
-  drive(-33);  // -26 || 29
+  drive(-33);
 
-  intakeTop.move(127);
-  pros::delay(500);
-  intake.move(127);
+  intakeTop.move(INTAKE_SPEED);
+  pros::delay(COLOR_SORT_DELAY);
+  intake.move(INTAKE_SPEED);
 
   pros::delay(2000);
 
   intakeTop.move(0);
-  pros::delay(500);
+  pros::delay(COLOR_SORT_DELAY);
   intake.move(0);
 
   drive(12);
@@ -715,50 +683,41 @@ void skills() {
   drive(48);
   turnRel(180);
 
-  intake.move(120);
+  intake.move(INTAKE_MEDIUM_SPEED);
 
   drive(30);
+
+  // Ensure all motors are stopped
+  intake.move(0);
+  intakeTop.move(0);
 }
 
-// }
-
-/// Callout Funcs
+/**
+ * Main autonomous selector functions.
+ * These are called from the autonomous selector in main.cpp
+ */
 
 void drive_left() {
-  genericDrive(LEFT);  // Dont forget to change back to LEFT !!!
-
+  genericDrive(LEFT);
   master.rumble("..-");
-};
+}
 
 void drive_right() {
   genericDrive(RIGHT);
-
   master.rumble("..-");
-};
+}
 
 void drive_swp() {
   soloWinPoint();
-
   master.rumble("..-");
 }
 
 void drive_skills() {
   skills();
-
   master.rumble("-.-");
 }
 
 void driveInch() {
   drive(2);
+  master.rumble(".");
 }
-// with curve
-
-// void leftDrive() {
-//   // Move center left
-
-//   // Turn to 45deg with the right side of the drive, and the left side going 30
-//   chassis.pid_swing_set(ez::LEFT_SWING, 90_deg, 64, 43);
-//   chassis.pid_wait();
-
-//   master.rumble(".");
-// }
