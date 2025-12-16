@@ -39,8 +39,8 @@ const int TURN_SPEED = 110;
 // Chassis constructor
 ez::Drive chassis(
     // These are for the drive motors, the first motor is used for distance sensing!
-    {-1, 2, -3},  // Left Chassis Ports (negative port will reverse it!)
-    {10, -9, 8},  // Right Chassis Ports (negative port will reverse it!)
+    {7, 2, 3},  // Left Chassis Ports (negative port will reverse it!)
+    {-10, -9, -8},  // Right Chassis Ports (negative port will reverse it!)
 
     6,     // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)f
