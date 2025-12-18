@@ -452,7 +452,7 @@ void genericDrive(OrientationEnum orientation) {
     intakeTop.move(0);
     intake.move(0);
 
-    drive(54);  // 50
+    drive(50);  // 50
 
   } else {
     turnRel(-45);
@@ -480,7 +480,7 @@ void genericDrive(OrientationEnum orientation) {
 
   // drive(13);//17
 
-  chassis.pid_drive_set(10, DRIVE_SPEED);
+  chassis.pid_drive_set(10, 60);
   chassis.pid_wait_quick_chain();
 
   // drive(-0.5);
