@@ -16,11 +16,11 @@ const int SLOW_DRIVE_SPEED = 30;
 const int MEDIUM_DRIVE_SPEED = 40;
 const int VERY_SLOW_DRIVE_SPEED = 25;
 const int INTAKE_SPEED = 127;
-const int INTAKE_MEDIUM_SPEED = 120;
+const int INTAKE_MEDIUM_SPEED = 100;
 const int INTAKE_SORT_SPEED = 90;
 
 // Color sensor constants
-const int HUE_THRESHOLD_BLUE_RED = 200; // Hue values > 200 are blue, <= 200 are red
+const int HUE_THRESHOLD_BLUE_RED = 200;  // Hue values > 200 are blue, <= 200 are red
 const int OPTICAL_LED_PWM = 50;
 
 // Timing constants (in milliseconds)
@@ -408,7 +408,7 @@ void measure_offsets() {
  *        Distance to drive in inches. Positive = forward, negative = backward.
  */
 void drive(float n) {
-  chassis.pid_drive_set(n, DRIVE_SPEED);
+  chassis.pid_drive_set(n, 95);
   chassis.pid_wait();
 }
 
@@ -485,7 +485,7 @@ void genericDrive(OrientationEnum orientation) {
     intakeTop.move(0);
     intake.move(0);
 
-    drive(54);
+    drive(50);
 
   } else {
     turnRel(-45);
@@ -516,12 +516,15 @@ void genericDrive(OrientationEnum orientation) {
   // Settling movements to ensure rings drop
   drive(-2);
   drive(3);
+  pros::delay(RING_EJECT_DELAY * 2);
   horns.set(false);
 
   master.rumble(".");
 
   // Move to far goal
-  drive(-33);
+  drive(-30);
+  chassis.pid_drive_set(-3, 60);
+  chassis.pid_wait();
 
   intakeTop.move(INTAKE_SPEED);
   intake.move(INTAKE_SPEED);
@@ -530,16 +533,16 @@ void genericDrive(OrientationEnum orientation) {
   scraper.set(false);
   horns.set(true);
 
-  drive(12);
+  // drive(12);
 
   // Position for endgame
-  turnRel(-135);
-  drive(-14);
-  turnRel(-180);
-  chassis.pid_drive_set(-5, DRIVE_SPEED);
-  chassis.pid_wait_quick_chain();
-  horns.set(false);
-  drive(-5);
+  // turnRel(-135);
+  // drive(-14);
+  // turnRel(-180);
+  // chassis.pid_drive_set(-5, DRIVE_SPEED);
+  // chassis.pid_wait_quick_chain();
+  // horns.set(false);
+  // drive(-5);
 
   // Ensure all motors are stopped
   intake.move(0);
@@ -604,7 +607,7 @@ void soloWinPoint() {
  * Skills autonomous routine.
  * Maximizes score by collecting and scoring multiple rings across the field.
  */
-void skills() {
+void skills_old() {
   turnRel(29);
   intake.move(INTAKE_SPEED);
   horns.set(true);
@@ -690,6 +693,67 @@ void skills() {
   // Ensure all motors are stopped
   intake.move(0);
   intakeTop.move(0);
+}
+
+void skills() {
+
+  scraper.set(true);
+  hood.set(true);
+  drive(38);  // 39
+
+  turnRel(-90);
+  // scraper.set(true);
+  intake.move(127);
+
+  // -------------
+
+  // drive(12);
+  chassis.pid_drive_set(12, 60);
+  chassis.pid_wait();
+
+  pros::delay(1800);
+  intake.move(0);
+  scraper.set(false);
+  drive(-21);
+  turnRel(0);
+  drive(12);  // 13
+  turnRel(89);
+  drive(81);  // 83
+  turnRel(0);
+  drive(-15);
+  turnRel(90);
+  drive(-14);
+
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(1800);
+  intake.move(0);
+  intakeTop.move(0);
+
+  intake.move(120);
+  scraper.set(true);
+
+  drive(25);
+
+  pros::delay(1800);
+  intake.move(0);
+  scraper.set(false);
+
+  drive(-25);
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(1800);
+  intake.move(0);
+  intakeTop.move(0);
+
+  // turnRel(180);
+  // drive(12);
+  // turnRel(-90);
+  // drive(24);
+  // drive(-48);
+  // drive(48);
+
+  // ---------
 }
 
 /**

@@ -11,5 +11,10 @@ inline pros::MotorGroup intake({-4, -15});
 inline pros::MotorGroup intakeTop({14});
 
 inline ez::Piston scraper('C');
-inline ez::Piston doublePark('A');
-inline ez::Piston horns('G');
+inline ez::Piston horns('D');
+inline ez::Piston hood('A');
+
+// A - hood; C - scraper; D - horn / arm; 
+
+
+// inline ez::Piston doublePark('G');
