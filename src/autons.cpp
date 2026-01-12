@@ -696,12 +696,71 @@ void skills_old() {
 }
 
 void skills() {
+  // scraper.set(true);
+  // hood.set(true);
+  // drive(38);  // 39
 
-  scraper.set(true);
-  hood.set(true);
-  drive(38);  // 39
+  // turnRel(-90);
+  // // scraper.set(true);
+  // intake.move(127);
 
-  turnRel(-90);
+  // // -------------
+
+  // // drive(12);
+  // chassis.pid_drive_set(12, 60);
+  // chassis.pid_wait();
+
+  // pros::delay(1800);
+  // intake.move(0);
+  // scraper.set(false);
+  // drive(-21);
+  // turnRel(0);
+  // drive(12);  // 13
+  // turnRel(89);
+  // drive(81);  // 83
+  // turnRel(0);
+  // drive(-15);
+
+  turnRel(90);
+  drive(-14);  //-14
+
+  // scraper.set(true);
+  hood.set(true);  //!!!!
+
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(1800);
+  intake.move(0);
+  intakeTop.move(0);
+
+  intake.move(120);
+  drive(26);
+  drive(3);
+
+  pros::delay(1800);
+  intake.move(0);
+  // scraper.set(false);
+
+  drive(-27);
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(1800);
+  intake.move(0);
+  intakeTop.move(0);
+
+  drive(12);
+  turnRel(154);
+  drive(55);  // 53
+
+  turnRel(180);
+  drive(36);
+  turnRel(206);
+  drive(25);
+  turnRel(90);
+
+  // ---------
+
+  turnRel(90);
   // scraper.set(true);
   intake.move(127);
 
@@ -715,45 +774,15 @@ void skills() {
   intake.move(0);
   scraper.set(false);
   drive(-21);
-  turnRel(0);
+  turnRel(180);
   drive(12);  // 13
-  turnRel(89);
+  turnRel(-89);
   drive(81);  // 83
-  turnRel(0);
+  turnRel(180);
   drive(-15);
-  turnRel(90);
-  drive(-14);
 
-  intake.move(120);
-  intakeTop.move(120);
-  pros::delay(1800);
-  intake.move(0);
-  intakeTop.move(0);
-
-  intake.move(120);
-  scraper.set(true);
-
-  drive(25);
-
-  pros::delay(1800);
-  intake.move(0);
-  scraper.set(false);
-
-  drive(-25);
-  intake.move(120);
-  intakeTop.move(120);
-  pros::delay(1800);
-  intake.move(0);
-  intakeTop.move(0);
-
-  // turnRel(180);
-  // drive(12);
-  // turnRel(-90);
-  // drive(24);
-  // drive(-48);
-  // drive(48);
-
-  // ---------
+  turnRel(-90);
+  drive(-14);  //-14
 }
 
 /**
