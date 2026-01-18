@@ -19,6 +19,11 @@ const int INTAKE_SPEED = 127;
 const int INTAKE_MEDIUM_SPEED = 100;
 const int INTAKE_SORT_SPEED = 90;
 
+// _______________________
+const int CENTER_REJECT = 1500;  // 1400
+const int PICKUP_AUTOS = 400;    // 800
+// _______________________
+
 // Color sensor constants
 const int HUE_THRESHOLD_BLUE_RED = 200;  // Hue values > 200 are blue, <= 200 are red
 const int OPTICAL_LED_PWM = 50;
@@ -455,7 +460,7 @@ void intakeSort(int n, int x) {
   optical_sensor.set_led_pwm(0);
 }
 
-// ---------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 /**
  * Generic autonomous routine that works for both left and right sides.
@@ -473,7 +478,7 @@ void genericDrive(OrientationEnum orientation) {
   drive(16);
   chassis.pid_drive_set(12, SLOW_DRIVE_SPEED);
   chassis.pid_wait();
-  pros::delay(COLOR_SORT_DELAY);
+  // pros::delay(COLOR_SORT_DELAY);
   intake.move(0);
 
   if (orientation == LEFT) {
@@ -492,57 +497,69 @@ void genericDrive(OrientationEnum orientation) {
     drive(13);
 
     intake.move(-INTAKE_SORT_SPEED);
-    pros::delay(RING_EJECT_DELAY);
+    pros::delay(CENTER_REJECT);  // RING_EJECT_DELAY
     intake.move(0);
 
+    //______________________________________________
+
     drive(-6);
-    turnRel(135 * orientation);
-    drive(44);
+    turnRel(133 * orientation);  // 135*orient
+    drive(44.5);                 // 4
   }
 
   master.rumble(".");
 
   // Move to center goal and score
   scraper.set(true);
-  pros::delay(SETTLING_DELAY);
-  horns.set(true);
-  turnRel(180);
+  // pros::delay(SETTLING_DELAY);
+  turnRel(179);  // 180
 
-  intake.move(INTAKE_MEDIUM_SPEED);
+  // intake.move(INTAKE_MEDIUM_SPEED);
 
-  chassis.pid_drive_set(10, DRIVE_SPEED);
-  chassis.pid_wait_quick_chain();
+  intake.move(120);
+
+  chassis.pid_drive_set(11, 110);
+  chassis.pid_wait();
 
   // Settling movements to ensure rings drop
-  drive(-2);
-  drive(3);
-  pros::delay(RING_EJECT_DELAY * 2);
-  horns.set(false);
+  // drive(-2);
+
+  // drive(4);
+  pros::delay(PICKUP_AUTOS);
+  // intake.move(0);
 
   master.rumble(".");
 
   // Move to far goal
+  hood.set(true);
+
   drive(-30);
-  chassis.pid_drive_set(-3, 60);
-  chassis.pid_wait();
+  // intake.move(INTAKE_MEDIUM_SPEED);
 
-  intakeTop.move(INTAKE_SPEED);
-  intake.move(INTAKE_SPEED);
+  // chassis.pid_drive_set(-3, 60);
+  // chassis.pid_wait();
 
-  pros::delay(RING_EJECT_DELAY);
+  intakeTop.move(120);
+  // intake.move(120);
+
+  pros::delay(RING_EJECT_DELAY + 300);
   scraper.set(false);
   horns.set(true);
 
-  // drive(12);
+  intakeTop.move(0);
+  intake.move(0);
 
-  // Position for endgame
-  // turnRel(-135);
-  // drive(-14);
-  // turnRel(-180);
-  // chassis.pid_drive_set(-5, DRIVE_SPEED);
-  // chassis.pid_wait_quick_chain();
-  // horns.set(false);
-  // drive(-5);
+  drive(12);
+
+  // Position for endgame for right
+  turnRel(135);
+  drive(-16);  //-14
+  turnRel(-180);
+  horns.set(false);
+
+  chassis.pid_drive_set(-5, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  drive(-5);
 
   // Ensure all motors are stopped
   intake.move(0);
@@ -697,70 +714,12 @@ void skills_old() {
 
 void skills() {
   // scraper.set(true);
-  // hood.set(true);
-  // drive(38);  // 39
+  hood.set(true);
+  drive(38);  // 39
+  scraper.set(true);
 
-  // turnRel(-90);
-  // // scraper.set(true);
-  // intake.move(127);
+  turnRel(-90);
 
-  // // -------------
-
-  // // drive(12);
-  // chassis.pid_drive_set(12, 60);
-  // chassis.pid_wait();
-
-  // pros::delay(1800);
-  // intake.move(0);
-  // scraper.set(false);
-  // drive(-21);
-  // turnRel(0);
-  // drive(12);  // 13
-  // turnRel(89);
-  // drive(81);  // 83
-  // turnRel(0);
-  // drive(-15);
-
-  turnRel(90);
-  drive(-14);  //-14
-
-  // scraper.set(true);
-  hood.set(true);  //!!!!
-
-  intake.move(120);
-  intakeTop.move(120);
-  pros::delay(1800);
-  intake.move(0);
-  intakeTop.move(0);
-
-  intake.move(120);
-  drive(26);
-  drive(3);
-
-  pros::delay(1800);
-  intake.move(0);
-  // scraper.set(false);
-
-  drive(-27);
-  intake.move(120);
-  intakeTop.move(120);
-  pros::delay(1800);
-  intake.move(0);
-  intakeTop.move(0);
-
-  drive(12);
-  turnRel(154);
-  drive(55);  // 53
-
-  turnRel(180);
-  drive(36);
-  turnRel(206);
-  drive(25);
-  turnRel(90);
-
-  // ---------
-
-  turnRel(90);
   // scraper.set(true);
   intake.move(127);
 
@@ -772,17 +731,143 @@ void skills() {
 
   pros::delay(1800);
   intake.move(0);
-  scraper.set(false);
   drive(-21);
-  turnRel(180);
-  drive(12);  // 13
-  turnRel(-89);
-  drive(81);  // 83
-  turnRel(180);
-  drive(-15);
+  scraper.set(false);
 
-  turnRel(-90);
+  // start moving long
+
+  turnRel(0);
+  drive(12);    // 13
+  turnRel(88);  // compensating for drift along the lng goal 89
+  drive(81);    // 83
+
+  // Move across field
+
+  turnRel(0);
+  drive(-14);
+  // hood.set(true);
+
+  // turn and align
+
+  turnRel(90);
   drive(-14);  //-14
+
+  // move to long goal
+
+  scraper.set(true);
+  // hood.set(true);  //!!!!
+
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(2000);
+  // intake.move(0);
+  intakeTop.move(0);
+
+  // deposit
+
+  // intake.move(120);
+
+  //  hood.set(false);
+
+  drive(26);
+  drive(3);
+
+  pros::delay(1800);
+  intake.move(0);
+  // scraper.set(false);
+
+  // pick up loader 2
+
+  drive(-29);
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(2000);
+  intake.move(0);
+  intakeTop.move(0);
+
+  // deposit (2) long goal
+
+  scraper.set(false);
+
+  drive(12);
+
+  turnRel(176);
+
+  drive(93);  // 83
+
+  turnRel(90);
+  scraper.set(true);
+
+  // ---------
+
+  // scraper.set(true);
+  // intake.move(127);
+
+  // -------------
+
+  // drive(12);
+  chassis.pid_drive_set(15, 60);
+  chassis.pid_wait();
+
+  intake.move(120);
+
+  pros::delay(1800);
+  intake.move(0);
+  drive(-21);
+  scraper.set(false);
+  turnRel(90);
+
+  // start moving long
+
+  turnRel(180);
+  drive(14);  // 13
+  turnRel(266);
+  drive(81);  // 83
+
+  // Move across field
+
+  turnRel(180);
+  drive(-14);
+  // hood.set(true);
+
+  // turn and align
+
+  turnRel(270);
+  drive(-14);  //-14
+
+  // move to long goal
+
+  scraper.set(true);
+  // hood.set(true);  //!!!!
+
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(2000);
+  // intake.move(0);
+  intakeTop.move(0);
+  turnRel(270);
+
+  // deposit
+
+  // intake.move(120);
+
+  //  hood.set(false);
+
+  drive(26);
+  drive(3);
+
+  pros::delay(1800);
+  intake.move(0);
+  // scraper.set(false);
+
+  // pick up loader 2
+
+  drive(-29);
+  intake.move(120);
+  intakeTop.move(120);
+  pros::delay(1800);
+  intake.move(0);
+  intakeTop.move(0);
 }
 
 /**
@@ -798,6 +883,10 @@ void drive_left() {
 void drive_right() {
   genericDrive(RIGHT);
   master.rumble("..-");
+
+  // intake.move(-INTAKE_SORT_SPEED);
+  // pros::delay(CENTER_REJECT);  // RING_EJECT_DELAY
+  // intake.move(0);
 }
 
 void drive_swp() {

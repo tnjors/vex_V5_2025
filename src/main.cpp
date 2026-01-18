@@ -89,9 +89,11 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+
       {"Drive1\n\nSkills Code", drive_skills},
-      {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
+
       {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
+      {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
 
       {"Drive1\n\nSolo Win Point Right", drive_swp},
       {"Drive1\n\nMove An Inch", driveInch},
@@ -354,8 +356,7 @@ void opcontrol() {
       intake.move(0);
     }
 
-
-// Double Park
+    // Double Park
     // if (master.get_digital(DIGITAL_DOWN)) {
     //   intake.move(-90);
     //   while (distance_sensor_intake.get() > 90) {
