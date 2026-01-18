@@ -757,7 +757,7 @@ void skills() {
   scraper.set(true);
   // hood.set(true);  //!!!!
 
-  intake.move(120);
+  intake.move(127);
   intakeTop.move(120);
   pros::delay(2000);
   // intake.move(0);
@@ -779,7 +779,7 @@ void skills() {
   // pick up loader 2
 
   drive(-29);
-  intake.move(120);
+  intake.move(127);
   intakeTop.move(120);
   pros::delay(2000);
   intake.move(0);
@@ -792,6 +792,10 @@ void skills() {
   drive(12);
 
   turnRel(176);
+
+
+  // CHANGE SIDES
+
 
   drive(93);  // 83
 
@@ -809,30 +813,30 @@ void skills() {
   chassis.pid_drive_set(15, 60);
   chassis.pid_wait();
 
-  intake.move(120);
+  intake.move(127);
 
   pros::delay(1800);
   intake.move(0);
   drive(-21);
   scraper.set(false);
-  turnRel(90);
+  // turnRel(90);
 
   // start moving long
 
   turnRel(180);
   drive(14);  // 13
-  turnRel(266);
+  turnRel(264);//266
   drive(81);  // 83
 
   // Move across field
 
   turnRel(180);
-  drive(-14);
+  drive(-13.5);
   // hood.set(true);
 
   // turn and align
 
-  turnRel(270);
+  turnRel(268);//270
   drive(-14);  //-14
 
   // move to long goal
@@ -840,12 +844,12 @@ void skills() {
   scraper.set(true);
   // hood.set(true);  //!!!!
 
-  intake.move(120);
+  intake.move(127);
   intakeTop.move(120);
   pros::delay(2000);
   // intake.move(0);
   intakeTop.move(0);
-  turnRel(270);
+  turnRel(268);
 
   // deposit
 
@@ -863,7 +867,7 @@ void skills() {
   // pick up loader 2
 
   drive(-29);
-  intake.move(120);
+  intake.move(127);
   intakeTop.move(120);
   pros::delay(1800);
   intake.move(0);
