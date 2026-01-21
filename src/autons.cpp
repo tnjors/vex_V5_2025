@@ -793,9 +793,7 @@ void skills() {
 
   turnRel(176);
 
-
   // CHANGE SIDES
-
 
   drive(93);  // 83
 
@@ -810,7 +808,7 @@ void skills() {
   // -------------
 
   // drive(12);
-  chassis.pid_drive_set(15, 60);
+  chassis.pid_drive_set(16, 80);//15, 60
   chassis.pid_wait();
 
   intake.move(127);
@@ -824,20 +822,20 @@ void skills() {
   // start moving long
 
   turnRel(180);
-  drive(14);  // 13
-  turnRel(264);//266
-  drive(81);  // 83
+  drive(14);     // 13
+  turnRel(264);  // 266
+  drive(81);     // 83
 
   // Move across field
 
   turnRel(180);
-  drive(-13.5);
+  drive(-14);
   // hood.set(true);
 
   // turn and align
 
-  turnRel(268);//270
-  drive(-14);  //-14
+  turnRel(268);  // 270
+  drive(-16);    //-14
 
   // move to long goal
 
@@ -858,7 +856,7 @@ void skills() {
   //  hood.set(false);
 
   drive(26);
-  drive(3);
+  drive(4);
 
   pros::delay(1800);
   intake.move(0);
@@ -866,12 +864,25 @@ void skills() {
 
   // pick up loader 2
 
-  drive(-29);
+  drive(-29);//29
   intake.move(127);
   intakeTop.move(120);
   pros::delay(1800);
-  intake.move(0);
-  intakeTop.move(0);
+  // intake.move(0);
+  // intakeTop.move(0);
+
+  // park
+
+  scraper.set(false);
+
+  drive(10);
+  turnRel(-5);
+  drive(45);  // 48
+
+  turnRel(-95);
+
+  drive(40);
+
 }
 
 /**

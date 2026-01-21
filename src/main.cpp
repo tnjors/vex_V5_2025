@@ -90,10 +90,11 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
 
-      {"Drive1\n\nSkills Code", drive_skills},
 
       {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
+      {"Drive1\n\nSkills Code", drive_skills},
+
 
       {"Drive1\n\nSolo Win Point Right", drive_swp},
       {"Drive1\n\nMove An Inch", driveInch},
@@ -385,7 +386,7 @@ void opcontrol() {
 
     scraper.button_toggle(master.get_digital(DIGITAL_A));
 
-    horns.button_toggle(master.get_digital(DIGITAL_X));
+    horns.button_toggle(master.get_digital(DIGITAL_B));
 
     hood.button_toggle(master.get_digital(DIGITAL_LEFT));
 
