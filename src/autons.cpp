@@ -531,7 +531,7 @@ void genericDrive(OrientationEnum orientation) {
   master.rumble(".");
 
   // Move to far goal
-  hood.set(true);
+  outtake.set(true);
 
   drive(-30);
   // intake.move(INTAKE_MEDIUM_SPEED);
@@ -714,7 +714,7 @@ void skills_old() {
 
 void skills() {
   // scraper.set(true);
-  hood.set(true);
+  outtake.set(true);
   drive(38);  // 39
   scraper.set(true);
 
@@ -745,7 +745,7 @@ void skills() {
 
   turnRel(0);
   drive(-14);
-  // hood.set(true);
+  // outtake.set(true);
 
   // turn and align
 
@@ -755,7 +755,7 @@ void skills() {
   // move to long goal
 
   scraper.set(true);
-  // hood.set(true);  //!!!!
+  // outtake.set(true);  //!!!!
 
   intake.move(127);
   intakeTop.move(120);
@@ -767,7 +767,7 @@ void skills() {
 
   // intake.move(120);
 
-  //  hood.set(false);
+  //  outtake.set(false);
 
   drive(26);
   drive(3);
@@ -830,7 +830,7 @@ void skills() {
 
   turnRel(180);
   drive(-14);
-  // hood.set(true);
+  // outtake.set(true);
 
   // turn and align
 
@@ -840,7 +840,7 @@ void skills() {
   // move to long goal
 
   scraper.set(true);
-  // hood.set(true);  //!!!!
+  // outtake.set(true);  //!!!!
 
   intake.move(127);
   intakeTop.move(120);
@@ -853,7 +853,7 @@ void skills() {
 
   // intake.move(120);
 
-  //  hood.set(false);
+  //  outtake.set(false);
 
   drive(26);
   drive(4);

@@ -12,9 +12,9 @@ inline pros::MotorGroup intakeTop({14});
 
 inline ez::Piston scraper('C');
 inline ez::Piston horns('D');
-inline ez::Piston hood('A');
+inline ez::Piston outtake('A');
 
-// A - hood; C - scraper; D - horn / arm; 
+// A - outtake; C - scraper; D - horn / arm; 
 
 
 // inline ez::Piston doublePark('G');

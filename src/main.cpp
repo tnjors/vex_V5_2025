@@ -386,9 +386,9 @@ void opcontrol() {
 
     scraper.button_toggle(master.get_digital(DIGITAL_A));
 
-    horns.button_toggle(master.get_digital(DIGITAL_B));
+    horns.button_toggle(master.get_digital(DIGITAL_RIGHT));
 
-    hood.button_toggle(master.get_digital(DIGITAL_LEFT));
+    outtake.button_toggle(master.get_digital(DIGITAL_B));
 
     // doublePark.button_toggle(master.get_digital(DIGITAL_B));
 
