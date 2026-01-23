@@ -386,7 +386,7 @@ void opcontrol() {
 
     scraper.button_toggle(master.get_digital(DIGITAL_A));
 
-    horns.button_toggle(master.get_digital(DIGITAL_RIGHT));
+    horns.button_toggle(master.get_digital(DIGITAL_DOWN));
 
     outtake.button_toggle(master.get_digital(DIGITAL_B));
 

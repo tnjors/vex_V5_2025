@@ -531,7 +531,6 @@ void genericDrive(OrientationEnum orientation) {
   master.rumble(".");
 
   // Move to far goal
-  outtake.set(true);
 
   drive(-30);
   // intake.move(INTAKE_MEDIUM_SPEED);
