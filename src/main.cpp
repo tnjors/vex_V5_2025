@@ -90,13 +90,11 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
 
-
-      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
-      {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
-      {"Drive1\n\nSkills Code", drive_skills},
-
-
+      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},  // void driveRight2();
+      {"Drive1\n\nMain Drive Code Auton Start Right but only long goal", driveRight2},  // void driveRight2();
       {"Drive1\n\nSolo Win Point Right", drive_swp},
+      {"Drive1\n\nSkills Code", drive_skills},
+      {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
       {"Drive1\n\nMove An Inch", driveInch},
 
   });
@@ -105,6 +103,11 @@ void initialize() {
   chassis.initialize();
   ez::as::initialize();
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
+
+  // active foe skills only
+
+  // scraper.set(true);
+  // horns.set(true);
 }
 
 /**
@@ -278,6 +281,7 @@ void opcontrol() {
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
+
     ez_template_extras();
 
     optical_sensor.set_led_pwm(50);

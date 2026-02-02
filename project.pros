@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "QualsMain",
+    "project_name": "QualsRight",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -425,7 +425,8 @@
     },
     "upload_options": {
       "description": "7110H HAUNTED",
-      "icon": "alien"
+      "icon": "alien",
+      "slot": 1
     },
     "use_early_access": false
   }

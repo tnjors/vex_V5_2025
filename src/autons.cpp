@@ -470,6 +470,7 @@ void intakeSort(int n, int x) {
  *        LEFT or RIGHT to mirror the routine for the appropriate starting position
  */
 void genericDrive(OrientationEnum orientation) {
+  
   // Move to center and collect first ring
   turnRel(29 * orientation);
   intake.move(INTAKE_SPEED);
@@ -484,12 +485,13 @@ void genericDrive(OrientationEnum orientation) {
   if (orientation == LEFT) {
     turnRel(135 * orientation);
     drive(-13);
-    intakeTop.move(-INTAKE_SORT_SPEED);
+    outtake.set(true);
+    intakeTop.move(INTAKE_SORT_SPEED);
     intake.move(INTAKE_SORT_SPEED);
     pros::delay(RING_EJECT_DELAY);
     intakeTop.move(0);
     intake.move(0);
-
+    outtake.set(false);
     drive(50);
 
   } else {
@@ -503,8 +505,8 @@ void genericDrive(OrientationEnum orientation) {
     //______________________________________________
 
     drive(-6);
-    turnRel(133 * orientation);  // 135*orient
-    drive(44.5);                 // 4
+    turnRel(133 * orientation);  // 135 * orient
+    drive(43);                   // 44.5// & 43
   }
 
   master.rumble(".");
@@ -521,27 +523,18 @@ void genericDrive(OrientationEnum orientation) {
   chassis.pid_drive_set(11, 110);
   chassis.pid_wait();
 
-  // Settling movements to ensure rings drop
-  // drive(-2);
-
-  // drive(4);
-  pros::delay(PICKUP_AUTOS);
-  // intake.move(0);
-
-  master.rumble(".");
+  pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! 300
 
   // Move to far goal
 
-  drive(-30);
-  // intake.move(INTAKE_MEDIUM_SPEED);
+  // drive(-30); //-30
 
-  // chassis.pid_drive_set(-3, 60);
-  // chassis.pid_wait();
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
 
   intakeTop.move(120);
-  // intake.move(120);
 
-  pros::delay(RING_EJECT_DELAY + 300);
+  pros::delay(RING_EJECT_DELAY + 600);  //+300
   scraper.set(false);
   horns.set(true);
 
@@ -556,20 +549,20 @@ void genericDrive(OrientationEnum orientation) {
   turnRel(-180);
   horns.set(false);
 
-  chassis.pid_drive_set(-5, DRIVE_SPEED);
+  chassis.pid_drive_set(-13, DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
-  drive(-5);
+  // drive(-8);
 
   // Ensure all motors are stopped
-  intake.move(0);
-  intakeTop.move(0);
+  // intake.move(0);
+  // intakeTop.move(0);
 }
 
 /**
  * Solo win point autonomous routine.
  * Optimized path for scoring the win point goal on the right side.
  */
-void soloWinPoint() {
+void soloWinPoint_old() {
   turnRel(26);
   intake.move(INTAKE_SPEED);
   drive(16);
@@ -617,6 +610,95 @@ void soloWinPoint() {
   // Ensure all motors are stopped
   intake.move(0);
   intakeTop.move(0);
+}
+
+void soloWinPoint() {
+  drive(32);
+
+  scraper.set(true);
+
+  turnRel(90);
+
+  intake.move(127);
+
+  chassis.pid_drive_set(14, 110);  // 13
+  chassis.pid_wait();
+
+  // pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! - 300
+  pros::delay(100);  // pickup delay for loader !!!! - 300
+
+  scraper.set(false);
+
+  intakeTop.move(127);
+
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
+  pros::delay(RING_EJECT_DELAY + 600);  //+300 // 600
+
+  intake.move(0);
+  intakeTop.move(0);
+
+  chassis.pid_turn_set(190, 100);
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(120);
+  intake.move(120);
+
+  drive(16);  // 19
+
+  intakeTop.move(80);
+
+  chassis.pid_drive_set(3, SLOW_DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  // pros::delay(COLOR_SORT_DELAY);
+  intakeTop.move(0);
+
+  turnRel(180);
+
+  chassis.pid_drive_set(20, 110);  // 25
+  chassis.pid_wait_quick_chain();
+
+  turnRel(-190);
+  chassis.pid_drive_set(11, 80);
+  chassis.pid_wait_quick_chain();
+
+  scraper.set(true);
+  outtake.set(true);
+
+  turnRel(135);
+  intake.move(0);
+
+  drive(-14);
+  intakeTop.move(INTAKE_SORT_SPEED);
+  intake.move(INTAKE_SORT_SPEED);
+  pros::delay(RING_EJECT_DELAY + 800);
+  intakeTop.move(0);
+  intake.move(0);
+
+  drive(48);
+  outtake.set(false);
+
+  turnRel(90);
+
+  chassis.pid_drive_set(-15, 110);
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(120);
+  intake.move(120);
+
+  // pros::delay(RING_EJECT_DELAY + 600);  //+300 // 600
+
+  // drive(12);
+
+  // // Position for endgame for right
+  // turnRel(-135);
+  // drive(-16);  //-14
+  // turnRel(-90);
+  // horns.set(false);
+
+  // chassis.pid_drive_set(-13, DRIVE_SPEED);
+  // chassis.pid_wait_quick_chain();
 }
 
 /**
@@ -713,7 +795,7 @@ void skills_old() {
 
 void skills() {
   // scraper.set(true);
-  outtake.set(true);
+  // outtake.set(true);
   drive(38);  // 39
   scraper.set(true);
 
@@ -721,16 +803,20 @@ void skills() {
 
   // scraper.set(true);
   intake.move(127);
-
+  intakeTop.move(120);
   // -------------
 
   // drive(12);
-  chassis.pid_drive_set(12, 60);
-  chassis.pid_wait();
+  chassis.pid_drive_set(12, 90);
+  chassis.pid_wait_quick_chain();
 
   pros::delay(1800);
+  intakeTop.move(0);
   intake.move(0);
-  drive(-21);
+
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
   scraper.set(false);
 
   // start moving long
@@ -749,7 +835,9 @@ void skills() {
   // turn and align
 
   turnRel(90);
-  drive(-14);  //-14
+  // drive(-14);  //-14
+  chassis.pid_drive_set(-15.5, 110);
+  chassis.pid_wait_quick_chain();
 
   // move to long goal
 
@@ -757,7 +845,7 @@ void skills() {
   // outtake.set(true);  //!!!!
 
   intake.move(127);
-  intakeTop.move(120);
+  intakeTop.move(127);
   pros::delay(2000);
   // intake.move(0);
   intakeTop.move(0);
@@ -768,16 +856,22 @@ void skills() {
 
   //  outtake.set(false);
 
-  drive(26);
-  drive(3);
+  chassis.pid_drive_set(30, 110);
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(110);
 
   pros::delay(1800);
   intake.move(0);
+  intakeTop.move(0);
+
   // scraper.set(false);
 
   // pick up loader 2
 
-  drive(-29);
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
   intake.move(127);
   intakeTop.move(120);
   pros::delay(2000);
@@ -806,15 +900,20 @@ void skills() {
 
   // -------------
 
-  // drive(12);
-  chassis.pid_drive_set(16, 80);//15, 60
-  chassis.pid_wait();
-
   intake.move(127);
+  intakeTop.move(120);
+
+  // drive(12);
+  chassis.pid_drive_set(16, 90);  // 15, 60
+  chassis.pid_wait_quick_chain();
 
   pros::delay(1800);
   intake.move(0);
-  drive(-21);
+  intakeTop.move(0);
+
+  //
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
   scraper.set(false);
   // turnRel(90);
 
@@ -828,13 +927,14 @@ void skills() {
   // Move across field
 
   turnRel(180);
-  drive(-14);
+  drive(-16);  //-14
   // outtake.set(true);
 
   // turn and align
 
   turnRel(268);  // 270
-  drive(-16);    //-14
+  chassis.pid_drive_set(-16, 110);
+  chassis.pid_wait_quick_chain();
 
   // move to long goal
 
@@ -846,7 +946,7 @@ void skills() {
   pros::delay(2000);
   // intake.move(0);
   intakeTop.move(0);
-  turnRel(268);
+  // turnRel(268);
 
   // deposit
 
@@ -854,8 +954,8 @@ void skills() {
 
   //  outtake.set(false);
 
-  drive(26);
-  drive(4);
+  chassis.pid_drive_set(30, 110);
+  chassis.pid_wait_quick_chain();
 
   pros::delay(1800);
   intake.move(0);
@@ -863,7 +963,7 @@ void skills() {
 
   // pick up loader 2
 
-  drive(-29);//29
+  drive(-29);  // 29
   intake.move(127);
   intakeTop.move(120);
   pros::delay(1800);
@@ -881,7 +981,6 @@ void skills() {
   turnRel(-95);
 
   drive(40);
-
 }
 
 /**
@@ -917,3 +1016,66 @@ void driveInch() {
   drive(2);
   master.rumble(".");
 }
+
+void driveRight2() {
+  turnRel(29);
+  intake.move(INTAKE_SPEED);
+  horns.set(true);
+
+  drive(16);
+  chassis.pid_drive_set(12, SLOW_DRIVE_SPEED);
+  chassis.pid_wait();
+  // pros::delay(COLOR_SORT_DELAY);
+  intake.move(0);
+
+  turnRel(133);  // 135 * orient
+  drive(36);     // 44.5//
+
+  master.rumble(".");
+
+  // Move to center goal and score
+  scraper.set(true);
+  // pros::delay(SETTLING_DELAY);
+  turnRel(179);  // 180
+
+  // intake.move(INTAKE_MEDIUM_SPEED);
+
+  intake.move(120);
+
+  chassis.pid_drive_set(11, 110);
+  chassis.pid_wait();
+
+  intakeTop.move(120);
+
+  pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! 300
+
+  intakeTop.move(0);
+
+
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(120);
+
+  pros::delay(RING_EJECT_DELAY + 1200);  //+300// ring+600
+  scraper.set(false);
+  horns.set(true);
+
+  intakeTop.move(0);
+  intake.move(0);
+
+  drive(12);
+
+  // Position for endgame for right
+  turnRel(135);
+  drive(-16);  //-14
+  turnRel(-180);
+  horns.set(false);
+
+  chassis.pid_drive_set(-13, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  // drive(-8);
+}
+
+// chassis.pid_turn_set(90, 100);
+// chassis.pid_wait_quick_chain();
