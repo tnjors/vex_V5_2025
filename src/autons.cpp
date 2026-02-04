@@ -8,7 +8,7 @@
 
 // These are out of 127
 const int DRIVE_SPEED = 110;
-const int TURN_SPEED = 110;
+const int TURN_SPEED = 120;
 const int SWING_SPEED = 110;
 
 // Additional speed constants for autonomous routines
@@ -470,7 +470,6 @@ void intakeSort(int n, int x) {
  *        LEFT or RIGHT to mirror the routine for the appropriate starting position
  */
 void genericDrive(OrientationEnum orientation) {
-  
   // Move to center and collect first ring
   turnRel(29 * orientation);
   intake.move(INTAKE_SPEED);
@@ -496,6 +495,9 @@ void genericDrive(OrientationEnum orientation) {
 
   } else {
     turnRel(-45);
+    // chassis.pid_turn_set(-45, TURN_SPEED);
+    // chassis.pid_wait();
+
     drive(13);
 
     intake.move(-INTAKE_SORT_SPEED);
@@ -521,7 +523,7 @@ void genericDrive(OrientationEnum orientation) {
   intake.move(120);
 
   chassis.pid_drive_set(11, 110);
-  chassis.pid_wait();
+  chassis.pid_wait_quick();
 
   pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! 300
 
@@ -529,8 +531,8 @@ void genericDrive(OrientationEnum orientation) {
 
   // drive(-30); //-30
 
-  chassis.pid_drive_set(-30, 110);
-  chassis.pid_wait_quick_chain();
+  chassis.pid_drive_set(-31, 110);
+  chassis.pid_wait_quick();  // quick chain
 
   intakeTop.move(120);
 
@@ -545,6 +547,10 @@ void genericDrive(OrientationEnum orientation) {
 
   // Position for endgame for right
   turnRel(135);
+
+  // chassis.pid_turn_set(135, 120);
+  // chassis.pid_wait_quick();
+
   drive(-16);  //-14
   turnRel(-180);
   horns.set(false);
@@ -613,7 +619,9 @@ void soloWinPoint_old() {
 }
 
 void soloWinPoint() {
-  drive(32);
+  // drive(32);
+  chassis.pid_drive_set(32, 85);  // 13
+  chassis.pid_wait();
 
   scraper.set(true);
 
@@ -624,15 +632,19 @@ void soloWinPoint() {
   chassis.pid_drive_set(14, 110);  // 13
   chassis.pid_wait();
 
+  intakeTop.move(127);
+
   // pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! - 300
-  pros::delay(100);  // pickup delay for loader !!!! - 300
+  // pros::delay(100);  // pickup delay for loader !!!! - 300
+
+  intakeTop.move(0);
 
   scraper.set(false);
 
-  intakeTop.move(127);
-
   chassis.pid_drive_set(-30, 110);
   chassis.pid_wait_quick_chain();
+
+  intakeTop.move(127);
 
   pros::delay(RING_EJECT_DELAY + 600);  //+300 // 600
 
@@ -652,9 +664,10 @@ void soloWinPoint() {
   chassis.pid_drive_set(3, SLOW_DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
   // pros::delay(COLOR_SORT_DELAY);
-  intakeTop.move(0);
 
   turnRel(180);
+
+  intakeTop.move(0);
 
   chassis.pid_drive_set(20, 110);  // 25
   chassis.pid_wait_quick_chain();
@@ -669,7 +682,7 @@ void soloWinPoint() {
   turnRel(135);
   intake.move(0);
 
-  drive(-14);
+  drive(-16);  //-14
   intakeTop.move(INTAKE_SORT_SPEED);
   intake.move(INTAKE_SORT_SPEED);
   pros::delay(RING_EJECT_DELAY + 800);
@@ -682,7 +695,7 @@ void soloWinPoint() {
   turnRel(90);
 
   chassis.pid_drive_set(-15, 110);
-  chassis.pid_wait_quick_chain();
+  chassis.pid_wait();
 
   intakeTop.move(120);
   intake.move(120);
@@ -1050,7 +1063,6 @@ void driveRight2() {
   pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! 300
 
   intakeTop.move(0);
-
 
   chassis.pid_drive_set(-30, 110);
   chassis.pid_wait_quick_chain();

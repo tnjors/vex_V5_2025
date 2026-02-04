@@ -39,8 +39,8 @@ const int TURN_SPEED = 110;
 // Chassis constructor
 ez::Drive chassis(
     // These are for the drive motors, the first motor is used for distance sensing!
-    {-1, 2, -3},  // Left Chassis Ports (negative port will reverse it!)
-    {10, -9, 8},  // Right Chassis Ports (negative port will reverse it!)
+    {-1, 2, -3},  // Left Chassis Ports (negative port will reverse it!)-1,2,-3
+    {10, -9, 8},  // Right Chassis Ports (negative port will reverse it!)10,-9,8
 
     6,     // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)f
@@ -90,9 +90,9 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
 
-      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},  // void driveRight2();
-      {"Drive1\n\nMain Drive Code Auton Start Right but only long goal", driveRight2},  // void driveRight2();
       {"Drive1\n\nSolo Win Point Right", drive_swp},
+      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},                     // void driveRight2();
+      {"Drive1\n\nMain Drive Code Auton Start Right but only long goal", driveRight2},  // void driveRight2();
       {"Drive1\n\nSkills Code", drive_skills},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
       {"Drive1\n\nMove An Inch", driveInch},
