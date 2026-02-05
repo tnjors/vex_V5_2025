@@ -475,7 +475,7 @@ void genericDrive(OrientationEnum orientation) {
   intake.move(INTAKE_SPEED);
   horns.set(true);
 
-  drive(16);
+  drive(15.5);//16
   chassis.pid_drive_set(12, SLOW_DRIVE_SPEED);
   chassis.pid_wait();
   // pros::delay(COLOR_SORT_DELAY);
@@ -554,7 +554,10 @@ void genericDrive(OrientationEnum orientation) {
   // chassis.pid_turn_set(135, 120);
   // chassis.pid_wait_quick();
 
-  drive(-16);  //-14
+  // drive(-16);  //-14
+  chassis.pid_drive_set(-16, 110);  //-31
+  chassis.pid_wait();   // quick chain
+
   // turnRel(-180);
   chassis.pid_turn_set(-180, 110);
   chassis.pid_wait_quick_chain();
@@ -633,7 +636,7 @@ void soloWinPoint() {
   // Lower the first number (kP).
   // If your default is 10, try 4.0 or 5.0 for a long, smooth ramp down.
   // Format: (kP, kI, kD)
-  chassis.pid_drive_constants_set(7.0, 0, 5.0);
+  chassis.pid_drive_constants_set(8.0, 0, 5.0);
 
   // 3. Run the drive command
   // The robot will now start slowing down much earlier
@@ -1063,12 +1066,14 @@ void driveRight2() {
   turnRel(29);
   intake.move(INTAKE_SPEED);
   horns.set(true);
+  outtake.set(false);
 
   drive(16);
   chassis.pid_drive_set(12, SLOW_DRIVE_SPEED);
   chassis.pid_wait();
   // pros::delay(COLOR_SORT_DELAY);
   intake.move(0);
+
 
   turnRel(133);  // 135 * orient
   drive(36);     // 44.5//
@@ -1089,7 +1094,7 @@ void driveRight2() {
 
   intakeTop.move(120);
 
-  pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! 300
+  pros::delay(PICKUP_AUTOS - 200);  // pickup delay for loader !!!! 300
 
   intakeTop.move(0);
 
