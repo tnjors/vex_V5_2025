@@ -53,6 +53,7 @@ ez::Drive chassis(
 // - `4.0` is the distance from the center of the wheel to the center of the robot
 // ez::tracking_wheel horiz_tracker(8, 2.75, 4.0);  // This tracking wheel is perpendicular to the drive wheels
 // ez::tracking_wheel vert_tracker(9, 2.75, 4.0);   // This tracking wheel is parallel to the drive wheels
+ez::tracking_wheel vert_tracker(-11, 2, -0.27);  // This tracking wheel is parallel to the drive wheels
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -75,6 +76,8 @@ void initialize() {
   //  - ignore this if you aren't using a vertical tracker
   // chassis.odom_tracker_left_set(&vert_tracker);
 
+  chassis.odom_tracker_left_set(&vert_tracker);
+
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true);   // Enables modifying the controller curve with buttons on the joysticks
   chassis.opcontrol_drive_activebrake_set(0.0);   // Sets the active brake kP. We recommend ~2.  0 will disable.
@@ -90,12 +93,13 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
 
+      {"Drive1\n\nSkills Code", drive_skills},
       {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
       {"Drive1\n\nSolo Win Point Right", drive_swp},
       {"Drive1\n\nMain Drive Code Auton Start Right but only long goal", driveRight2},
-      {"Drive1\n\nSkills Code", drive_skills},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
       {"Drive1\n\nMove An Inch", driveInch},
+      {"Drive1\n\nMeasure Offsets", measure_offsets},
 
   });
 
@@ -104,7 +108,7 @@ void initialize() {
   ez::as::initialize();
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 
-  // active foe skills only
+  // active for skills only
 
   // scraper.set(true);
   // horns.set(true);
@@ -274,19 +278,9 @@ void opcontrol() {
 
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
-  pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
-  pros::Distance distance_sensor_intake(DISTANCE_PORT_INTAKE);
-
-  // TeamColor teamColor = BLUE;  // if True -> blue
-
   while (true) {
     // Gives you some extras to make EZ-Template ezier
-
     ez_template_extras();
-
-    optical_sensor.set_led_pwm(50);
-
-    // chassis.opcontrol_tank();  // Tank control
 
     chassis.opcontrol_arcade_standard(ez::SPLIT);  // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
@@ -296,52 +290,6 @@ void opcontrol() {
     // . . .
     // Put more user control code here!
     // . . .
-
-    // --------- No Color Sort -------
-
-    // if (master.get_digital(DIGITAL_L2)) {
-    //   intake.move(127);
-    // } else if (master.get_digital(DIGITAL_L1)) {
-    //   intake.move(-127);
-    // } else {
-    //   intake.move(0);
-    // }
-
-    // if (master.get_digital(DIGITAL_R2)) {
-    //   intakeTop.move(127);
-    // } else if (master.get_digital(DIGITAL_R1)) {
-    //   intakeTop.move(-127);
-    // } else {
-    //   intakeTop.move(0);
-    // }
-
-    // ---------------- Color Toggle -------------------
-
-    // if (master.get_digital_new_press(DIGITAL_UP)) {
-    //   if (teamColor == RED) {
-    //     teamColor = BLUE;
-    //     master.rumble(".");
-    //   } else if (teamColor == BLUE) {
-    //     teamColor = RED;
-    //     master.rumble("..");
-    //   }
-    // }
-
-    // ---------------- Dynamic Color Toggle -------------------
-
-    // TODO: check what color hue is returned when no cube is on top of the sensor
-
-    // while (master.get_digital(DIGITAL_L2))
-
-    // if (master.get_digital(DIGITAL_R2) && isOpponentCube(teamColor, optical_sensor.get_hue())) {
-    //   dropCube();
-    // } else if (master.get_digital(DIGITAL_R2)) {  // && isTeamCube(teamColor, optical_sensor.get_hue())
-    //   intakeTop.move(127);
-    // } else if (master.get_digital(DIGITAL_R1)) {
-    //   intakeTop.move(-127);
-    // } else {
-    //   intakeTop.move(0);
-    // }
 
     // ---------------- No Color Sort -------------------
 
@@ -372,21 +320,7 @@ void opcontrol() {
     //   doublePark.set(true);
     // }
 
-    // ---------------- Old Color Sort -------------------
-
-    // if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() > 200)) {
-    //   intakeTop.move(-127);
-    //   pros::delay(300);
-    //   intakeTop.move(0);
-    // } else if (master.get_digital(DIGITAL_R2) && (optical_sensor.get_hue() < 120)) {
-    //   intakeTop.move(127);
-    // } else if (master.get_digital(DIGITAL_R1)) {
-    //   intakeTop.move(-127);
-    // } else {
-    //   intakeTop.move(0);
-    // }
-
-    // ----------------------------------------------------
+    // ---------------- Buttons -------------------
 
     scraper.button_toggle(master.get_digital(DIGITAL_A));
 
@@ -394,7 +328,7 @@ void opcontrol() {
 
     outtake.button_toggle(master.get_digital(DIGITAL_B));
 
-    // doublePark.button_toggle(master.get_digital(DIGITAL_B));
+    intakePiston.button_toggle(master.get_digital(DIGITAL_X));
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
