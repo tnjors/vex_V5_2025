@@ -760,7 +760,7 @@ void skills() {
 
   scraper.set(true);
   horns.set(true);
-  drive(48);
+  drive(48.3);
 
   turnRel(-90);
 
@@ -768,41 +768,41 @@ void skills() {
 
   chassis.drive_set(20, 20);
 
-  pros::delay(550);  // pickup delay for loader !!!! - 300
+  pros::delay(600);  // pickup delay for loader !!!! - 300
 
   chassis.drive_set(0, 0);
 
   intakeTop.move(0);
-  intake.move(70);
+  intake.move(100);
 
   scraper.set(false);
 
   drive(-12);
   turnRel(45);
-  drive(17.5);
-  turnRel(88);  // compensating for drift along the lng goal 88
+  drive(17.7);
+  turnRel(89);  // compensating for drift along the lng goal 88
   drive(76);    // 83
 
   // Move across field
 
   turnRel(0);
-  drive(-13);
+  drive(-12.5);
 
   turnRel(88);
 
   scraper.set(true);
 
   // drive(-16);
-  chassis.pid_drive_set(-16.5, 105);
+  chassis.pid_drive_set(-16.5, 110);
   chassis.pid_wait_quick_chain();
 
-  chassis.drive_set(-20, -20);
+  chassis.drive_set(-50, -50);
 
   horns.set(false);
 
   intake.move(127);
   intakeTop.move(127);
-  pros::delay(DEPOSIT_DELAY_SKILLS);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 100);
 
   chassis.drive_angle_set(90);
 
@@ -814,20 +814,21 @@ void skills() {
   chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 105);
   chassis.pid_wait_quick_chain();
   horns.set(true);
-  chassis.pid_drive_set(5, 45);
+  chassis.pid_drive_set(5.5, 45);
   chassis.pid_wait();
 
-  chassis.drive_set(20, 20);
+  chassis.drive_set(50, 50);
 
-  pros::delay(600);  // pickup delay for loader !!!! - 300
+  pros::delay(1000);  // pickup delay for loader !!!! - 300
 
   chassis.drive_set(0, 0);
 
   drive(-DRIVE_DISTANCE_CYCLE2);
-  chassis.drive_set(-20, -20);
+  chassis.drive_set(-50, -50);
   horns.set(false);
   scraper.set(false);
-  pros::delay(DEPOSIT_DELAY_SKILLS);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 100);
+  chassis.drive_angle_set(90);
 
   chassis.drive_set(0, 0);
 
@@ -837,22 +838,22 @@ void skills() {
 
   turnRel(178);
 
-  drive(95);
+  drive(97);
 
   scraper.set(true);
 
-  turnRel(89);
+  turnRel(90);
 
   // goal2
 
-  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 95);
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 4, 95);  // 95
   chassis.pid_wait_quick_chain();
-  chassis.pid_drive_set(5, 65);
+  chassis.pid_drive_set(4, 55);
   chassis.pid_wait();
 
-  chassis.drive_set(20, 20);
+  chassis.drive_set(50, 50);
 
-  pros::delay(600);  // pickup delay for loader !!!! - 300
+  pros::delay(700);  // pickup delay for loader !!!! - 300
 
   intakeTop.move(0);
 
@@ -865,17 +866,18 @@ void skills() {
   drive(-12);
   turnRel(-135);
   drive(18.5);
-  turnRel(-95);  // compensating for drift along the lng goal 89 // -93
+  turnRel(-91);  // compensating for drift along the lng goal 89 // -93
   drive(76);     // 83
 
   turnRel(180);
-  drive(-14);
+  drive(-12.5);
 
   turnRel(270);
 
-  drive(-16.5);
+  chassis.pid_drive_set(-16.5, 110);
+  chassis.pid_wait_quick_chain();
 
-  chassis.drive_set(-20, -20);
+  chassis.drive_set(-50, -50);
 
   horns.set(false);
   scraper.set(true);
@@ -905,11 +907,11 @@ void skills() {
   drive(-DRIVE_DISTANCE_CYCLE2);
   chassis.drive_set(-20, -20);
 
-  chassis.drive_angle_set(270);
-
   horns.set(false);
   scraper.set(false);
   pros::delay(DEPOSIT_DELAY_SKILLS);
+
+  chassis.drive_angle_set(270);
 
   chassis.drive_set(0, 0);
 
