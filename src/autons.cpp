@@ -163,7 +163,7 @@ void measure_offsets() {
  *        Distance to drive in inches. Positive = forward, negative = backward.
  */
 void drive(float n) {
-  chassis.pid_drive_set(n, 95);
+  chassis.pid_drive_set(n, DRIVE_SPEED);
   chassis.pid_wait();
 }
 
@@ -187,8 +187,12 @@ void turnRel(float n) {
  */
 void genericDrive(OrientationEnum orientation) {
   // Move to center and collect first ring
+
+  chassis.pid_drive_constants_set(8, 0, 18.0);
+
   turnRel(GENERIC_INITIAL_ANGLE * orientation);
   intake.move(INTAKE_SPEED);
+  intakeTop.move(INTAKE_SPEED);
   horns.set(true);
 
   drive(GENERIC_DRIVE_DISTANCE_CENTER);
@@ -241,16 +245,24 @@ void genericDrive(OrientationEnum orientation) {
   chassis.pid_drive_set(GENERIC_DRIVE_TO_LOADER, 110);
   chassis.pid_wait_quick_chain();
 
-  pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! 300
+  pros::delay(PICKUP_AUTOS - 50);  // pickup delay for loader !!!! 300
 
   // Move to far goal
 
   // drive(-30); //-30
 
-  chassis.pid_drive_set(GENERIC_DRIVE_DEPOSIT, 110);  //-31
-  chassis.pid_wait_quick_chain();                     // quick chain
+  chassis.pid_drive_set(GENERIC_DRIVE_DEPOSIT + 5, 110);  //-31
+  chassis.pid_wait_quick_chain();                         // quick chain
+  chassis.pid_drive_set(-5, 45);
+  chassis.pid_wait();
+
+  chassis.drive_set(-20, -20);
+
+  horns.set(false);
 
   intakeTop.move(INTAKE_SPEED);
+
+  chassis.drive_set(0, 0);
 
   pros::delay(RING_EJECT_DELAY + 600);  //+300
   scraper.set(false);
@@ -739,16 +751,18 @@ void skills_old2() {
 }
 
 void skills() {
+  // chassis.odom_enable(true);
+
   chassis.pid_drive_constants_set(8, 0, 18.0);
-
-  drive(48);
-
-  scraper.set(true);
-
-  turnRel(-90);
 
   intake.move(127);
   intakeTop.move(127);
+
+  scraper.set(true);
+  horns.set(true);
+  drive(48);
+
+  turnRel(-90);
 
   drive(14);
 
@@ -759,14 +773,14 @@ void skills() {
   chassis.drive_set(0, 0);
 
   intakeTop.move(0);
+  intake.move(70);
 
   scraper.set(false);
-  horns.set(true);
 
   drive(-12);
   turnRel(45);
-  drive(17);
-  turnRel(88);  // compensating for drift along the lng goal 89
+  drive(17.5);
+  turnRel(88);  // compensating for drift along the lng goal 88
   drive(76);    // 83
 
   // Move across field
@@ -774,22 +788,63 @@ void skills() {
   turnRel(0);
   drive(-13);
 
-  turnRel(90);
+  turnRel(88);
 
-  horns.set(false);
   scraper.set(true);
 
-  drive(-15.5);
+  // drive(-16);
+  chassis.pid_drive_set(-16.5, 105);
+  chassis.pid_wait_quick_chain();
+
+  chassis.drive_set(-20, -20);
+
+  horns.set(false);
 
   intake.move(127);
   intakeTop.move(127);
   pros::delay(DEPOSIT_DELAY_SKILLS);
 
-  drive(3);
-  horns.set(true);
-  drive(-3.2);
+  chassis.drive_angle_set(90);
 
-  // drive(DRIVE_DISTANCE_CYCLE2);
+  chassis.drive_set(0, 0);
+
+  // drive(3);
+  // drive(-3.2);
+
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 105);
+  chassis.pid_wait_quick_chain();
+  horns.set(true);
+  chassis.pid_drive_set(5, 45);
+  chassis.pid_wait();
+
+  chassis.drive_set(20, 20);
+
+  pros::delay(600);  // pickup delay for loader !!!! - 300
+
+  chassis.drive_set(0, 0);
+
+  drive(-DRIVE_DISTANCE_CYCLE2);
+  chassis.drive_set(-20, -20);
+  horns.set(false);
+  scraper.set(false);
+  pros::delay(DEPOSIT_DELAY_SKILLS);
+
+  chassis.drive_set(0, 0);
+
+  drive(12);
+
+  horns.set(true);
+
+  turnRel(178);
+
+  drive(95);
+
+  scraper.set(true);
+
+  turnRel(89);
+
+  // goal2
+
   chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 95);
   chassis.pid_wait_quick_chain();
   chassis.pid_drive_set(5, 65);
@@ -799,28 +854,46 @@ void skills() {
 
   pros::delay(600);  // pickup delay for loader !!!! - 300
 
+  intakeTop.move(0);
+
   chassis.drive_set(0, 0);
 
-  drive(-1 * DRIVE_DISTANCE_CYCLE2);
-  horns.set(false);
   scraper.set(false);
-  pros::delay(DEPOSIT_DELAY_SKILLS);
 
-  drive(12);
+  // go long right
+
+  drive(-12);
+  turnRel(-135);
+  drive(18.5);
+  turnRel(-95);  // compensating for drift along the lng goal 89 // -93
+  drive(76);     // 83
 
   turnRel(180);
+  drive(-14);
 
-  drive(96);
+  turnRel(270);
 
-  turnRel(90);
+  drive(-16.5);
 
-  // goal2
+  chassis.drive_set(-20, -20);
 
-  horns.set(true);
+  horns.set(false);
+  scraper.set(true);
 
-  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 12 - 5, 95);
+  intake.move(127);
+  intakeTop.move(127);
+  pros::delay(DEPOSIT_DELAY_SKILLS);
+
+  chassis.drive_angle_set(270);
+
+  // drive(3);
+  // drive(-3.2);
+  chassis.drive_set(0, 0);
+
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 95);
   chassis.pid_wait_quick_chain();
-  chassis.pid_drive_set(5, 65);
+  horns.set(true);
+  chassis.pid_drive_set(5, 35);
   chassis.pid_wait();
 
   chassis.drive_set(20, 20);
@@ -828,6 +901,29 @@ void skills() {
   pros::delay(600);  // pickup delay for loader !!!! - 300
 
   chassis.drive_set(0, 0);
+
+  drive(-DRIVE_DISTANCE_CYCLE2);
+  chassis.drive_set(-20, -20);
+
+  chassis.drive_angle_set(270);
+
+  horns.set(false);
+  scraper.set(false);
+  pros::delay(DEPOSIT_DELAY_SKILLS);
+
+  chassis.drive_set(0, 0);
+
+  drive(12);
+
+  turnRel(0);
+
+  horns.set(true);
+
+  drive(48);
+
+  turnRel(270);
+
+  chassis.drive_set(120, 120);
 }
 /**
  * Main autonomous selector functions.
