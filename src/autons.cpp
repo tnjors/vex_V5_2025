@@ -760,20 +760,22 @@ void skills() {
 
   scraper.set(true);
   horns.set(true);
-  drive(48.3);
+  drive(49);
 
   turnRel(-90);
 
-  drive(14);
+  // drive(14);
+  chassis.pid_drive_set(14, 100);
+  chassis.pid_wait_quick_chain();
 
-  chassis.drive_set(20, 20);
+  chassis.drive_set(50, 50);
 
-  pros::delay(600);  // pickup delay for loader !!!! - 300
+  pros::delay(1400);  // pickup delay for loader !!!! - 300
 
   chassis.drive_set(0, 0);
 
   intakeTop.move(0);
-  intake.move(100);
+  intake.move(80);
 
   scraper.set(false);
 
@@ -786,14 +788,14 @@ void skills() {
   // Move across field
 
   turnRel(0);
-  drive(-12.5);
+  drive(-12);
 
   turnRel(88);
 
   scraper.set(true);
 
   // drive(-16);
-  chassis.pid_drive_set(-16.5, 110);
+  chassis.pid_drive_set(-16.6, 110);
   chassis.pid_wait_quick_chain();
 
   chassis.drive_set(-50, -50);
@@ -802,24 +804,28 @@ void skills() {
 
   intake.move(127);
   intakeTop.move(127);
-  pros::delay(DEPOSIT_DELAY_SKILLS + 100);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1000);
 
-  chassis.drive_angle_set(90);
+  // chassis.drive_angle_set(90);
 
   chassis.drive_set(0, 0);
+
+  intakeTop.move(0);
 
   // drive(3);
   // drive(-3.2);
 
-  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 105);
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 4, 105);
   chassis.pid_wait_quick_chain();
+  intakeTop.move(120);
+
   horns.set(true);
-  chassis.pid_drive_set(5.5, 45);
-  chassis.pid_wait();
+  // chassis.pid_drive_set(5.5, 45);
+  // chassis.pid_wait();
 
   chassis.drive_set(50, 50);
 
-  pros::delay(1000);  // pickup delay for loader !!!! - 300
+  pros::delay(2400);  // pickup delay for loader !!!! - 300. -->2400
 
   chassis.drive_set(0, 0);
 
@@ -827,10 +833,11 @@ void skills() {
   chassis.drive_set(-50, -50);
   horns.set(false);
   scraper.set(false);
-  pros::delay(DEPOSIT_DELAY_SKILLS + 100);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1250);
   chassis.drive_angle_set(90);
 
   chassis.drive_set(0, 0);
+  intakeTop.move(0);
 
   drive(12);
 
@@ -844,16 +851,28 @@ void skills() {
 
   turnRel(90);
 
+  // chassis.pid_drive_set(-12, 100);  // 95
+  // chassis.pid_wait_quick_chain();
+  // chassis.drive_set(-110, -110);
+  // pros::delay(1800);
+  // chassis.drive_angle_set(90);
+
   // goal2
 
-  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 4, 95);  // 95
+  // chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 4, 95);  // 95
+  // chassis.pid_wait_quick_chain();
+
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 12, 95);  // 95
   chassis.pid_wait_quick_chain();
-  chassis.pid_drive_set(4, 55);
-  chassis.pid_wait();
+
+  intakeTop.move(120);
+
+  // chassis.pid_drive_set(4, 55);
+  // chassis.pid_wait();
 
   chassis.drive_set(50, 50);
 
-  pros::delay(700);  // pickup delay for loader !!!! - 300
+  pros::delay(2400);  // pickup delay for loader !!!! - 300
 
   intakeTop.move(0);
 
@@ -866,16 +885,17 @@ void skills() {
   drive(-12);
   turnRel(-135);
   drive(18.5);
-  turnRel(-91);  // compensating for drift along the lng goal 89 // -93
+  turnRel(-92);  // compensating for drift along the lng goal 89 // -93
   drive(76);     // 83
 
   turnRel(180);
-  drive(-12.5);
+  drive(-12);//-12.5
 
   turnRel(270);
 
-  chassis.pid_drive_set(-16.5, 110);
+  chassis.pid_drive_set(-17, 110);
   chassis.pid_wait_quick_chain();
+  intakeTop.move(120);
 
   chassis.drive_set(-50, -50);
 
@@ -884,9 +904,10 @@ void skills() {
 
   intake.move(127);
   intakeTop.move(127);
-  pros::delay(DEPOSIT_DELAY_SKILLS);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1000); //+100
 
   chassis.drive_angle_set(270);
+  intakeTop.move(0);
 
   // drive(3);
   // drive(-3.2);
@@ -895,21 +916,24 @@ void skills() {
   chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 95);
   chassis.pid_wait_quick_chain();
   horns.set(true);
-  chassis.pid_drive_set(5, 35);
-  chassis.pid_wait();
 
-  chassis.drive_set(20, 20);
+  intakeTop.move(120);
 
-  pros::delay(600);  // pickup delay for loader !!!! - 300
+  // chassis.pid_drive_set(5, 35);
+  // chassis.pid_wait();
+
+  chassis.drive_set(50, 50);
+
+  pros::delay(2400);  // pickup delay for loader !!!! - 300
 
   chassis.drive_set(0, 0);
 
-  drive(-DRIVE_DISTANCE_CYCLE2);
+  drive(-DRIVE_DISTANCE_CYCLE2 + 1);
   chassis.drive_set(-20, -20);
 
   horns.set(false);
   scraper.set(false);
-  pros::delay(DEPOSIT_DELAY_SKILLS);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1000);
 
   chassis.drive_angle_set(270);
 
@@ -926,6 +950,14 @@ void skills() {
   turnRel(270);
 
   chassis.drive_set(120, 120);
+  pros::delay(1500);
+
+turnRel(-85);
+turnRel(-95);
+turnRel(-85);
+turnRel(-95);  
+
+
 }
 /**
  * Main autonomous selector functions.
