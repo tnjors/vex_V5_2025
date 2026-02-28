@@ -954,7 +954,7 @@ void skills() {
 
   drive(12);
 
-  turnRel(45);
+  turnRel(-45);
 
   chassis.drive_set(80, 60);
 

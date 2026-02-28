@@ -329,7 +329,7 @@ void opcontrol() {
 
     outtake.button_toggle(master.get_digital(DIGITAL_B));
 
-    intakePiston.button_toggle(master.get_digital(DIGITAL_X));
+    intakePiston.button_toggle(master.get_digital(DIGITAL_Y));
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
