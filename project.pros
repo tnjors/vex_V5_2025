@@ -1,7 +1,11 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
+<<<<<<< HEAD
     "project_name": "QualsMain",
+=======
+    "project_name": "QualsRight",
+>>>>>>> pneumatics-claude
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -425,7 +429,12 @@
     },
     "upload_options": {
       "description": "7110H HAUNTED",
+<<<<<<< HEAD
       "icon": "alien"
+=======
+      "icon": "alien",
+      "slot": 1
+>>>>>>> pneumatics-claude
     },
     "use_early_access": false
   }

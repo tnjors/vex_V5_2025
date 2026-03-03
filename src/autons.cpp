@@ -8,15 +8,53 @@
 
 // These are out of 127
 const int DRIVE_SPEED = 110;
-const int TURN_SPEED = 110;
+const int TURN_SPEED = 120;
 const int SWING_SPEED = 110;
+
+// Additional speed constants for autonomous routines
+const int SLOW_DRIVE_SPEED = 30;
+const int MEDIUM_DRIVE_SPEED = 40;
+const int VERY_SLOW_DRIVE_SPEED = 25;
+const int INTAKE_SPEED = 120;
+const int INTAKE_MEDIUM_SPEED = 100;
+const int INTAKE_SORT_SPEED = 90;
+
+// Timing constants (in milliseconds)
+
+const int CENTER_REJECT = 1500;  // 1400
+const int PICKUP_AUTOS = 400;    // 800
+const int RING_EJECT_DELAY = 1000;
+const int RING_INTAKE_DELAY = 900;
+const int SETTLING_DELAY = 50;
+
+// ----------------------------------------------------------------------------
+// Program Constants
+// ----------------------------------------------------------------------------
+
+// 1. Generic Drive
 
 enum OrientationEnum { LEFT = -1,
                        RIGHT = 1 };
 
-///
-// Constants
-///
+const int GENERIC_INITIAL_ANGLE = 29;
+const int GENERIC_DRIVE_DISTANCE_CENTER = 15.5;
+const int GENERIC_CENTER_PICKUP_DRIVE = 12;
+const int GENERIC_TURN_TO_LOADER = 179;
+const int GENERIC_DRIVE_TO_LOADER = 11;
+const int GENERIC_DRIVE_DEPOSIT = -30;
+const int GENERIC_DRIVE_AWAY_LONG = 12;
+const int GENERIC_TURN_PAR1 = 135;
+const int GENERIC_DRIVE_PAR = -16;
+const int GENERIC_TURN_PAR2 = -180;
+
+// 2. Skills
+
+const int DRIVE_DISTANCE_CYCLE2 = 31.5;
+const int DEPOSIT_DELAY_SKILLS = 2100;
+
+// ----------------------------------------------------------------------------
+// PID Constants
+// ----------------------------------------------------------------------------
 void default_constants() {
   // P, I, D, and Start I
   chassis.pid_drive_constants_set(20.0, 0.0, 100.0);         // Fwd/rev constants, used for odom and non odom motions
@@ -50,271 +88,6 @@ void default_constants() {
   chassis.odom_boomerang_dlead_set(0.625);     // This handles how aggressive the end of boomerang motions are
 
   chassis.pid_angle_behavior_set(ez::shortest);  // Changes the default behavior for turning, this defaults it to the shortest path there
-}
-
-///
-// Drive Example
-///
-void drive_example() {
-  // The first parameter is target inches
-  // The second parameter is max speed the robot will drive at
-  // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
-  // for slew, only enable it when the drive distance is greater than the slew distance + a few inches
-
-  chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_drive_set(-12_in, DRIVE_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_drive_set(-12_in, DRIVE_SPEED);
-  chassis.pid_wait();
-}
-
-///
-// Turn Example
-///
-void turn_example() {
-  // The first parameter is the target in degrees
-  // The second parameter is max speed the robot will drive at
-
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(45_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
-}
-
-///
-// Combining Turn + Drive
-///
-void drive_and_turn() {
-  chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(45_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(-45_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_drive_set(-24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-}
-
-///
-// Wait Until and Changing Max Speed
-///
-void wait_until_change_speed() {
-  // pid_wait_until will wait until the robot gets to a desired position
-
-  // When the robot gets to 6 inches slowly, the robot will travel the remaining distance at full speed
-  chassis.pid_drive_set(24_in, 30, true);
-  chassis.pid_wait_until(6_in);
-  chassis.pid_speed_max_set(DRIVE_SPEED);  // After driving 6 inches at 30 speed, the robot will go the remaining distance at DRIVE_SPEED
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(45_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(-45_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  // When the robot gets to -6 inches slowly, the robot will travel the remaining distance at full speed
-  chassis.pid_drive_set(-24_in, 30, true);
-  chassis.pid_wait_until(-6_in);
-  chassis.pid_speed_max_set(DRIVE_SPEED);  // After driving 6 inches at 30 speed, the robot will go the remaining distance at DRIVE_SPEED
-  chassis.pid_wait();
-}
-
-///
-// Swing Example
-///
-void swing_example() {
-  // The first parameter is ez::LEFT_SWING or ez::RIGHT_SWING
-  // The second parameter is the target in degrees
-  // The third parameter is the speed of the moving side of the drive
-  // The fourth parameter is the speed of the still side of the drive, this allows for wider arcs
-
-  chassis.pid_swing_set(ez::LEFT_SWING, 45_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-
-  chassis.pid_swing_set(ez::RIGHT_SWING, 0_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-
-  chassis.pid_swing_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-
-  chassis.pid_swing_set(ez::LEFT_SWING, 0_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-}
-
-///
-// Motion Chaining
-///
-void motion_chaining() {
-  // Motion chaining is where motions all try to blend together instead of individual movements.
-  // This works by exiting while the robot is still moving a little bit.
-  // To use this, replace pid_wait with pid_wait_quick_chain.
-  chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(45_deg, TURN_SPEED);
-  chassis.pid_wait_quick_chain();
-
-  chassis.pid_turn_set(-45_deg, TURN_SPEED);
-  chassis.pid_wait_quick_chain();
-
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  // Your final motion should still be a normal pid_wait
-  chassis.pid_drive_set(-24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-}
-
-///
-// Auto that tests everything
-///
-void combining_movements() {
-  chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(45_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_swing_set(ez::RIGHT_SWING, -45_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_drive_set(-24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-}
-
-///
-// Interference example
-///
-void tug(int attempts) {
-  for (int i = 0; i < attempts - 1; i++) {
-    // Attempt to drive backward
-    printf("i - %i", i);
-    chassis.pid_drive_set(-12_in, 127);
-    chassis.pid_wait();
-
-    // If failsafed...
-    if (chassis.interfered) {
-      chassis.drive_sensor_reset();
-      chassis.pid_drive_set(-2_in, 20);
-      pros::delay(1000);
-    }
-    // If the robot successfully drove back, return
-    else {
-      return;
-    }
-  }
-}
-
-// If there is no interference, the robot will drive forward and turn 90 degrees.
-// If interfered, the robot will drive forward and then attempt to drive backward.
-void interfered_example() {
-  chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  if (chassis.interfered) {
-    tug(3);
-    return;
-  }
-
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
-}
-
-///
-// Odom Drive PID
-///
-void odom_drive_example() {
-  // This works the same as pid_drive_set, but it uses odom instead!
-  // You can replace pid_drive_set with pid_odom_set and your robot will
-  // have better error correction.
-
-  chassis.pid_odom_set(24_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_odom_set(-12_in, DRIVE_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_odom_set(-12_in, DRIVE_SPEED);
-  chassis.pid_wait();
-}
-
-///
-// Odom Pure Pursuit
-///
-void odom_pure_pursuit_example() {
-  // Drive to 0, 30 and pass through 6, 10 and 0, 20 on the way, with slew
-  chassis.pid_odom_set({{{6_in, 10_in}, fwd, DRIVE_SPEED},
-                        {{0_in, 20_in}, fwd, DRIVE_SPEED},
-                        {{0_in, 30_in}, fwd, DRIVE_SPEED}},
-                       true);
-  chassis.pid_wait();
-
-  // Drive to 0, 0 backwards
-  chassis.pid_odom_set({{0_in, 0_in}, rev, DRIVE_SPEED},
-                       true);
-  chassis.pid_wait();
-}
-
-///
-// Odom Pure Pursuit Wait Until
-///
-void odom_pure_pursuit_wait_until_example() {
-  chassis.pid_odom_set({{{0_in, 24_in}, fwd, DRIVE_SPEED},
-                        {{12_in, 24_in}, fwd, DRIVE_SPEED},
-                        {{24_in, 24_in}, fwd, DRIVE_SPEED}},
-                       true);
-  chassis.pid_wait_until_index(1);  // Waits until the robot passes 12, 24
-  // Intake.move(127);  // Set your intake to start moving once it passes through the second point in the index
-  chassis.pid_wait();
-  // Intake.move(0);  // Turn the intake off
-}
-
-///
-// Odom Boomerang
-///
-void odom_boomerang_example() {
-  chassis.pid_odom_set({{0_in, 24_in, 45_deg}, fwd, DRIVE_SPEED},
-                       true);
-  chassis.pid_wait();
-
-  chassis.pid_odom_set({{0_in, 0_in, 0_deg}, rev, DRIVE_SPEED},
-                       true);
-  chassis.pid_wait();
-}
-
-///
-// Odom Boomerang Injected Pure Pursuit
-///
-void odom_boomerang_injected_pure_pursuit_example() {
-  chassis.pid_odom_set({{{0_in, 24_in, 45_deg}, fwd, DRIVE_SPEED},
-                        {{12_in, 24_in}, fwd, DRIVE_SPEED},
-                        {{24_in, 24_in}, fwd, DRIVE_SPEED}},
-                       true);
-  chassis.pid_wait();
-
-  chassis.pid_odom_set({{0_in, 0_in, 0_deg}, rev, DRIVE_SPEED},
-                       true);
-  chassis.pid_wait();
 }
 
 ///
@@ -381,13 +154,13 @@ void measure_offsets() {
 // Make your own autonomous functions here!
 // . . .
 
-// ------------------------ Self - Defined Shortcuts ( Functions ) ------------------------
-
-// Turn is in degrees
-// Drive is in Inches
+// ------------------------ Helper Functions ------------------------
 
 /**
- * Sets the robot to move forward using PID without okapi units, only using slew if globally enabled.
+ * Drive the robot forward or backward.
+ *
+ * \param n
+ *        Distance to drive in inches. Positive = forward, negative = backward.
  */
 void drive(float n) {
   chassis.pid_drive_set(n, DRIVE_SPEED);
@@ -395,252 +168,319 @@ void drive(float n) {
 }
 
 /**
- * Sets the robot to turn relative to initial heading using PID.
+ * Turn the robot relative to the current heading.
+ *
+ * \param n
+ *        Angle to turn in degrees. Positive = right, negative = left.
  */
 void turnRel(float n) {
   chassis.pid_turn_set(n, TURN_SPEED);
   chassis.pid_wait();
 }
 
-// ------------------------ Color Sort Function ------------------------
-
-pros::Optical optical_sensor(OPTICAL_PORT);  // Init Opt Sensor
-
-/*
- * Sorts blue and red in regard to parameters.
- *    \param n
- *        Intake speed.
- * \param x
- *        Delay Between the start and end of the function.
+/**
+ * Generic autonomous routine that works for both left and right sides.
+ * Picks up rings, scores in the alliance goal, and positions for endgame.
+ *
+ * \param orientation
+ *        LEFT or RIGHT to mirror the routine for the appropriate starting position
  */
-void intakeSort(int n, int x) {
-  optical_sensor.set_led_pwm(50);
-  intake.move(n);
-  if (optical_sensor.get_hue() > 200) {
-    intakeTop.move(-n);
-    pros::delay(500);
-    intakeTop.move(0);
-  } else if (optical_sensor.get_hue() <= 200) {
-    intakeTop.move(n);
-  }
-  pros::delay(x);
-  // intake.move(0);
-  // intakeTop.move(0);
-}
-
-// ---------------------------------------------------------------------------
-
 void genericDrive(OrientationEnum orientation) {
-  // Move center left
+  // Move to center and collect first ring
 
-  turnRel(29 * orientation);  // used to be 26 deg
-  intake.move(127);
+  // chassis.pid_drive_constants_set(8, 0, 18.0);
+
+  turnRel(GENERIC_INITIAL_ANGLE * orientation);
+  intake.move(INTAKE_SPEED);
+  intakeTop.move(INTAKE_SPEED);
   horns.set(true);
 
-  drive(16);  // 28 in
-  chassis.pid_drive_set(12, 30);
+  drive(GENERIC_DRIVE_DISTANCE_CENTER);
+  chassis.pid_drive_set(GENERIC_CENTER_PICKUP_DRIVE, SLOW_DRIVE_SPEED);
   chassis.pid_wait();
-  pros::delay(500);
   intake.move(0);
 
   if (orientation == LEFT) {
     turnRel(135 * orientation);
-    drive(-13);
-    intakeTop.move(-90);
-    intake.move(90);
-    pros::delay(1000);
+    drive(-17);  //-13
+    horns.set(false);
+    outtake.set(true);
+    intakeTop.move(120);
+    intake.move(120);
+    pros::delay(RING_EJECT_DELAY);
     intakeTop.move(0);
     intake.move(0);
-
-    drive(50);  // 50
+    outtake.set(false);
+    drive(54);  // 50
 
   } else {
     turnRel(-45);
-    drive(13);
+    // chassis.pid_turn_set(-45, TURN_SPEED);
+    // chassis.pid_wait();
 
-    intake.move(-90);
-    pros::delay(1000);
+    drive(15);
+
+    intake.move(-INTAKE_SORT_SPEED);
+    pros::delay(1300);  // RING_EJECT_DELAY // 1500
     intake.move(0);
-    /// Fix distances.
-    drive(-6);
-    turnRel(135 * orientation);
-    drive(44);  // 45
+
+    //______________________________________________
+
+    drive(-8);
+    turnRel(133 * orientation);  // 135 * orient
+
+    drive(43);  // 44.5// & 43
   }
 
-  master.rumble(".");
+  // master.rumble(".");
 
-  // Move center
+  // Move to center goal and score
   scraper.set(true);
-  pros::delay(50);
-  horns.set(true);
-  turnRel(180);
-  // drive(12);
+  // pros::delay(SETTLING_DELAY);
+  turnRel(GENERIC_TURN_TO_LOADER);  // 180
 
-  intake.move(120);
+  // intake.move(INTAKE_MEDIUM_SPEED);
 
-  // drive(13);//17
+  intake.move(INTAKE_SPEED);
 
-  chassis.pid_drive_set(10, 60);
+  chassis.pid_drive_set(GENERIC_DRIVE_TO_LOADER + 2, 110);
   chassis.pid_wait_quick_chain();
 
-  // drive(-0.5);
+  pros::delay(PICKUP_AUTOS - 250);  // pickup delay for loader !!!! 300 50
 
-  drive(-2);
-  drive(3);
+  // Move to far goal
+
+  // drive(-30); //-30
+
+  chassis.pid_drive_set(-DRIVE_DISTANCE_CYCLE2, 120);
+  chassis.pid_wait_quick_chain();
+  chassis.drive_set(-50, -50);
   horns.set(false);
+  scraper.set(false);
 
-  // intake.move(0);
-  // scraper.set(false);
-  master.rumble(".");
+  intakeTop.move(INTAKE_SPEED);
 
-  // Move long
+  pros::delay(RING_EJECT_DELAY + 500);  //+300
 
-  drive(-33);  // -26 || 29
-  // if (orientation == LEFT) {
-  //   chassis.pid_drive_set(-3, 20);
-  //   chassis.pid_wait();
-  // } else {
-  // chassis.pid_drive_set(-4, 20);
-  // chassis.pid_wait();
-
-  // }
-  intakeTop.move(127);
-  // pros::delay(500);
-  intake.move(127);
-
-  pros::delay(1000);
+  chassis.drive_set(0, 0);
   scraper.set(false);
   horns.set(true);
 
-  drive(12);
+  intakeTop.move(0);
+  intake.move(0);
 
-  // horns.set(true);
-  // drive(-14);
+  drive(GENERIC_DRIVE_AWAY_LONG);
 
-  turnRel(-135);
-  drive(-14);
-  turnRel(-180);
-  chassis.pid_drive_set(-5, DRIVE_SPEED);
+  // Position for endgame for right
+  // turnRel(135);
+  chassis.pid_turn_set(GENERIC_TURN_PAR1, 110);
   chassis.pid_wait_quick_chain();
+
+  // chassis.pid_turn_set(135, 120);
+  // chassis.pid_wait_quick();
+
+  // drive(-16);  //-14
+  chassis.pid_drive_set(GENERIC_DRIVE_PAR - 1, 110);  //-31
+  chassis.pid_wait();                                 // quick chain
+
+  // turnRel(-180);
+  chassis.pid_turn_set(-GENERIC_TURN_PAR2, 110);
+  chassis.pid_wait_quick_chain();
+
   horns.set(false);
-  drive(-5);
+
+  chassis.pid_drive_set(-15, DRIVE_SPEED);
+  chassis.pid_wait();
 }
 
-void soloWinPoint() {
-  // Right side
-
+/**
+ * Solo win point autonomous routine.
+ * Optimized path for scoring the win point goal on the right side.
+ */
+void soloWinPoint_old() {
   turnRel(26);
-  intake.move(127);
-  drive(16);                      // 28 in
-  chassis.pid_drive_set(12, 40);  // speed 20
+  intake.move(INTAKE_SPEED);
+  drive(16);
+  chassis.pid_drive_set(12, MEDIUM_DRIVE_SPEED);
   chassis.pid_wait();
   intake.move(0);
 
   turnRel(-45);
   drive(13);
 
-  intake.move(-127);
-  pros::delay(900);
+  intake.move(-INTAKE_SPEED);
+  pros::delay(RING_INTAKE_DELAY);
   intake.move(0);
 
   drive(-6);
   turnRel(-97);
   drive(28);
-  intake.move(120);
-  chassis.pid_drive_set(10, 40);
+  intake.move(INTAKE_MEDIUM_SPEED);
+  chassis.pid_drive_set(10, MEDIUM_DRIVE_SPEED);
   chassis.pid_wait();
-  // intake.move(0);
 
   turnRel(-135);
-  drive(-14);  // 13
-  intake.move(127);
-  intakeTop.move(-127);
-  pros::delay(900);  // 300 is one ball
+  drive(-14);
+  intake.move(INTAKE_SPEED);
+  intakeTop.move(-INTAKE_SPEED);
+  pros::delay(RING_INTAKE_DELAY);
   intakeTop.move(0);
   intake.move(0);
 
-  drive(53);  // 50
+  drive(53);
 
   scraper.set(true);
   horns.set(true);
   turnRel(180);
-  intake.move(120);
+  intake.move(INTAKE_MEDIUM_SPEED);
   drive(14);
-  // intake.move(120);
-  pros::delay(1000);
+  pros::delay(RING_EJECT_DELAY);
   intake.move(0);
 
   horns.set(false);
-  drive(-29);  // -16
-  intake.move(127);
-  intakeTop.move(127);
+  drive(-29);
+  intake.move(INTAKE_SPEED);
+  intakeTop.move(INTAKE_SPEED);
+
+  // Ensure all motors are stopped
+  intake.move(0);
+  intakeTop.move(0);
 }
 
-// ----------- old skills -----------
+void soloWinPoint() {
+  // drive(32);
 
-// void skills() {  /// old
-//   drive(37);
-//   turnRel(-90);
-//   scraper.set(true);  // reverse
-//   pros::delay(150);
+  // chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
-//   drive(12);
-//   // intake.move(127);
-//   // pros::delay(3000);
-//   // intake.move(0);
+  // 2. Set "Soft" PID constants
+  // Lower the first number (kP).
+  // If your default is 10, try 4.0 or 5.0 for a long, smooth ramp down.
+  // Format: (kP, kI, kD)
+  chassis.pid_drive_constants_set(8.0, 0, 5.0);
 
-//   intake.move(120);
-//   pros::delay(1500);
-//   intake.move(0);
-//   scraper.set(false);
-//   master.rumble(".");
+  // 3. Run the drive command
+  // The robot will now start slowing down much earlier
+  chassis.pid_drive_set(33, 120);
+  chassis.pid_wait();
 
-//   drive(-32);
-//   intakeTop.move(127);
-//   pros::delay(500);
-//   intake.move(127);
-//   pros::delay(2000);
-//   intake.move(0);
-//   intakeTop.move(0);
+  // 4. Reset to your normal "Sharp" constants
+  // (Replace these numbers with whatever you have in your drive.cpp setup)
+  // chassis.pid_drive_constants_forward_set(11.0, 0, 45.0);
+  // chassis.drive_brake_set(MOTOR_BRAKE_HOLD);
 
-//   drive(12);
-//   turnRel(135);  // 45
-//   drive(27);
-//   turnRel(90);
-//   drive(48);
-//   turnRel(45);  // 135
-//   drive(24);
-//   turnRel(90);
+  // chassis.pid_drive_set(32, 85, true);  // 13
+  // chassis.pid_wait();
 
-//   scraper.set(true);  // reverse
-
-//   drive(12);
-
-//   intake.move(120);
-
-//   pros::delay(1500);
-//   intake.move(0);
-//   scraper.set(false);
-//   master.rumble(".");
-
-//   drive(-26);
-//   intakeTop.move(127);
-//   pros::delay(500);
-//   intake.move(127);
-//   pros::delay(2000);
-//   intake.move(0);
-//   intakeTop.move(0);
-// }
-
-// ---------------------------------
-
-void skills() {
-  turnRel(29);  // used to be 26 deg
-  intake.move(127);
+  scraper.set(true);
   horns.set(true);
 
-  drive(16);  // 28 in
-  chassis.pid_drive_set(12, 25);
+  turnRel(90);
+
+  intake.move(120);
+  intakeTop.move(120);
+
+  // chassis.pid_drive_set(14, 100);  // 13
+  // chassis.pid_wait_quick_chain();// not quick chain
+
+  drive(13);
+
+  // intakeTop.move(127);
+
+  // pros::delay(PICKUP_AUTOS - 300);  // pickup delay for loader !!!! - 300
+  // pros::delay(100);  // pickup delay for loader !!!! - 300
+
+  intakeTop.move(0);
+
+  scraper.set(false);
+
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
+  horns.set(false);
+
+  intakeTop.move(127);
+
+  pros::delay(RING_EJECT_DELAY + 600);  //+300 // 600
+
+  intake.move(0);
+  intakeTop.move(0);
+
+  chassis.pid_turn_set(190, 100);
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(120);
+  intake.move(120);
+
+  drive(19);  // 16
+
+  intakeTop.move(80);
+
+  turnRel(180);
+
+  chassis.pid_drive_constants_forward_set(11.0, 0, 45.0);
+
+  intakeTop.move(0);
+
+  chassis.pid_drive_set(24, 110);  // 25
+  chassis.pid_wait_quick_chain();
+
+  turnRel(-190);
+  chassis.pid_drive_set(11, 80);
+  chassis.pid_wait_quick_chain();
+
+  scraper.set(true);
+  outtake.set(true);
+
+  turnRel(135);
+  intake.move(0);
+
+  drive(-17.5);  //-16
+  intakeTop.move(127);
+  intake.move(127);
+  pros::delay(RING_EJECT_DELAY + 800);
+  intakeTop.move(0);
+  intake.move(0);
+
+  drive(51);  // 48
+  outtake.set(false);
+
+  chassis.pid_turn_constants_set(11.0, 0, 65.0);
+
+  // turnRel(90);
+  chassis.pid_turn_set(90, 110);
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_drive_set(-17.5, 110);  //-18
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(120);
+  intake.move(120);
+
+  // pros::delay(RING_EJECT_DELAY + 600);  //+300 // 600
+
+  // drive(12);
+
+  // // Position for endgame for right
+  // turnRel(-135);
+  // drive(-16);  //-14
+  // turnRel(-90);
+  // horns.set(false);
+
+  // chassis.pid_drive_set(-13, DRIVE_SPEED);
+  // chassis.pid_wait_quick_chain();
+}
+
+/**
+ * Skills autonomous routine.
+ * Maximizes score by collecting and scoring multiple rings across the field.
+ */
+void skills_old() {
+  turnRel(29);
+  intake.move(INTAKE_SPEED);
+  horns.set(true);
+
+  drive(16);
+  chassis.pid_drive_set(12, VERY_SLOW_DRIVE_SPEED);
   chassis.pid_wait();
   pros::delay(500);
   intake.move(0);
@@ -648,38 +488,37 @@ void skills() {
   turnRel(-45);
   drive(13);
 
-  intake.move(-127);
-  pros::delay(1000);
+  intake.move(-INTAKE_SPEED);
+  pros::delay(RING_EJECT_DELAY);
   intake.move(0);
 
   drive(-6);
   turnRel(-97);
   drive(33);
-  intake.move(120);
-  chassis.pid_drive_set(10, 25);
+  intake.move(INTAKE_MEDIUM_SPEED);
+  chassis.pid_drive_set(10, VERY_SLOW_DRIVE_SPEED);
   chassis.pid_wait();
-  // intake.move(0);
 
   turnRel(-135);
-  // horns.set(false);
-  drive(-16);  // 14
-  intake.move(127);
-  intakeTop.move(-127);
-  pros::delay(900);  // 300 is one ball
+  drive(-16);
+  intake.move(INTAKE_SPEED);
+  intakeTop.move(-INTAKE_SPEED);
+  pros::delay(RING_INTAKE_DELAY);
   intakeTop.move(0);
   intake.move(0);
 
-  drive(52);  // 45
+  drive(52);
 
   scraper.set(true);
   horns.set(true);
   turnRel(180);
 
-  intake.move(120);
+  intake.move(INTAKE_MEDIUM_SPEED);
 
   drive(15);
   drive(-0.5);
 
+  // Settling movements to ensure all rings score
   drive(-2);
   drive(2);
   drive(-2);
@@ -688,15 +527,14 @@ void skills() {
   drive(2);
 
   pros::delay(500);
-  // pros::delay(2000);
 
   horns.set(false);
 
-  drive(-33);  // -26 || 29
+  drive(-33);
 
-  intakeTop.move(127);
+  intakeTop.move(INTAKE_SPEED);
   pros::delay(500);
-  intake.move(127);
+  intake.move(INTAKE_SPEED);
 
   pros::delay(2000);
 
@@ -715,50 +553,591 @@ void skills() {
   drive(48);
   turnRel(180);
 
-  intake.move(120);
+  intake.move(INTAKE_MEDIUM_SPEED);
 
   drive(30);
+
+  // Ensure all motors are stopped
+  intake.move(0);
+  intakeTop.move(0);
 }
 
-// }
+void skills_old2() {
+  // scraper.set(true);
+  // outtake.set(true);
+  drive(38);  // 39
+  scraper.set(true);
 
-/// Callout Funcs
+  turnRel(-90);
+
+  // scraper.set(true);
+  intake.move(127);
+  intakeTop.move(120);
+  // -------------
+
+  // drive(12);
+  chassis.pid_drive_set(12, 90);
+  chassis.pid_wait_quick_chain();
+
+  pros::delay(1800);
+  intakeTop.move(0);
+  intake.move(0);
+
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
+  scraper.set(false);
+
+  // start moving long
+
+  turnRel(0);
+  drive(12);    // 13
+  turnRel(88);  // compensating for drift along the lng goal 89
+  drive(81);    // 83
+
+  // Move across field
+
+  turnRel(0);
+  drive(-14);
+  // outtake.set(true);
+
+  // turn and align
+
+  turnRel(90);
+  // drive(-14);  //-14
+  chassis.pid_drive_set(-15.5, 110);
+  chassis.pid_wait_quick_chain();
+
+  // move to long goal
+
+  scraper.set(true);
+  // outtake.set(true);  //!!!!
+
+  intake.move(127);
+  intakeTop.move(127);
+  pros::delay(2000);
+  // intake.move(0);
+  intakeTop.move(0);
+
+  // deposit
+
+  // intake.move(120);
+
+  //  outtake.set(false);
+
+  chassis.pid_drive_set(30, 110);
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(110);
+
+  pros::delay(1800);
+  intake.move(0);
+  intakeTop.move(0);
+
+  // scraper.set(false);
+
+  // pick up loader 2
+
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
+  intake.move(127);
+  intakeTop.move(120);
+  pros::delay(2000);
+  intake.move(0);
+  intakeTop.move(0);
+
+  // deposit (2) long goal
+
+  scraper.set(false);
+
+  drive(12);
+
+  turnRel(176);
+
+  // CHANGE SIDES
+
+  drive(93);  // 83
+
+  turnRel(90);
+  scraper.set(true);
+
+  // ---------
+
+  // scraper.set(true);
+  // intake.move(127);
+
+  // -------------
+
+  intake.move(127);
+  intakeTop.move(120);
+
+  // drive(12);
+  chassis.pid_drive_set(16, 90);  // 15, 60
+  chassis.pid_wait_quick_chain();
+
+  pros::delay(1800);
+  intake.move(0);
+  intakeTop.move(0);
+
+  //
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+  scraper.set(false);
+  // turnRel(90);
+
+  // start moving long
+
+  turnRel(180);
+  drive(14);     // 13
+  turnRel(264);  // 266
+  drive(81);     // 83
+
+  // Move across field
+
+  turnRel(180);
+  drive(-16);  //-14
+  // outtake.set(true);
+
+  // turn and align
+
+  turnRel(268);  // 270
+  chassis.pid_drive_set(-16, 110);
+  chassis.pid_wait_quick_chain();
+
+  // move to long goal
+
+  scraper.set(true);
+  // outtake.set(true);  //!!!!
+
+  intake.move(127);
+  intakeTop.move(120);
+  pros::delay(2000);
+  // intake.move(0);
+  intakeTop.move(0);
+  // turnRel(268);
+
+  // deposit
+
+  // intake.move(120);
+
+  //  outtake.set(false);
+
+  chassis.pid_drive_set(30, 110);
+  chassis.pid_wait_quick_chain();
+
+  pros::delay(1800);
+  intake.move(0);
+  // scraper.set(false);
+
+  // pick up loader 2
+
+  drive(-29);  // 29
+  intake.move(127);
+  intakeTop.move(120);
+  pros::delay(1800);
+  // intake.move(0);
+  // intakeTop.move(0);
+
+  // park
+
+  scraper.set(false);
+
+  drive(10);
+  turnRel(-5);
+  drive(45);  // 48
+
+  turnRel(-95);
+
+  drive(40);
+}
+
+void skills() {
+  // chassis.odom_enable(true);
+
+  chassis.pid_drive_constants_set(8, 0, 18.0);
+
+  scraper.set(true);
+  horns.set(true);
+  drive(49);
+
+  turnRel(-90);
+
+  intake.move(127);
+  intakeTop.move(127);
+
+  // drive(14);
+  chassis.pid_drive_set(14, 100);
+  chassis.pid_wait_quick_chain();
+
+  chassis.drive_set(50, 50);
+
+  pros::delay(1400);  // pickup delay for loader !!!! - 300
+
+  chassis.drive_set(0, 0);
+
+  intakeTop.move(0);
+  intake.move(40);
+
+  drive(-12);
+
+  scraper.set(false);
+
+  turnRel(45);
+  drive(17.7);
+  turnRel(89);  // compensating for drift along the lng goal 88
+  drive(76);    // 83
+
+  // Move across field
+
+  turnRel(0);
+  drive(-12);
+
+  turnRel(88);
+
+  scraper.set(true);
+
+  // drive(-16);
+  chassis.pid_drive_set(-16.6, 110);
+  chassis.pid_wait_quick_chain();
+
+  chassis.drive_set(-50, -50);
+
+  horns.set(false);
+
+  intake.move(127);
+  intakeTop.move(127);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1000);
+
+  // chassis.drive_angle_set(90);
+
+  chassis.drive_set(0, 0);
+
+  // intakeTop.move(0);
+
+  // drive(3);
+  // drive(-3.2);
+
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 4, 105);
+  chassis.pid_wait_quick_chain();
+  intakeTop.move(127);
+
+  horns.set(true);
+  // chassis.pid_drive_set(5.5, 45);
+  // chassis.pid_wait();
+
+  chassis.drive_set(50, 50);
+
+  pros::delay(2400);  // pickup delay for loader !!!! - 300. -->2400
+
+  chassis.drive_set(0, 0);
+
+  drive(-DRIVE_DISTANCE_CYCLE2);
+  chassis.drive_set(-50, -50);
+  horns.set(false);
+  scraper.set(false);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1250);
+  chassis.drive_angle_set(90);
+
+  chassis.drive_set(0, 0);
+  intakeTop.move(0);
+
+  drive(12);
+
+  horns.set(true);
+
+  turnRel(178);
+
+  drive(96);  // 97
+
+  scraper.set(true);
+
+  turnRel(90);
+
+  // chassis.pid_drive_set(-12, 100);  // 95
+  // chassis.pid_wait_quick_chain();
+  // chassis.drive_set(-110, -110);
+  // pros::delay(1800);
+  // chassis.drive_angle_set(90);
+
+  // goal2
+
+  intakeTop.move(127);
+
+  // chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 4, 95);  // 95
+  // chassis.pid_wait_quick_chain();
+
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 12, 95);  // 95
+  chassis.pid_wait_quick_chain();
+
+  // intakeTop.move(120);
+
+  // chassis.pid_drive_set(4, 55);
+  // chassis.pid_wait();
+
+  chassis.drive_set(50, 50);
+
+  pros::delay(2400);  // pickup delay for loader !!!! - 300
+
+  intakeTop.move(0);
+  intake.move(40);
+
+  chassis.drive_set(0, 0);
+
+  // go long right
+
+  drive(-12);
+
+  scraper.set(false);
+
+  turnRel(-135);
+  drive(18.5);
+  turnRel(-92);  // compensating for drift along the lng goal 89 // -93
+  drive(76);     // 83
+
+  turnRel(180);
+  drive(-12.5);  //-12.5
+
+  turnRel(270);
+
+  chassis.pid_drive_set(-17, 110);
+  chassis.pid_wait_quick_chain();
+  intakeTop.move(120);
+
+  chassis.drive_set(-50, -50);
+
+  horns.set(false);
+  scraper.set(true);
+
+  intake.move(127);
+  intakeTop.move(127);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1000);  //+100
+
+  chassis.drive_angle_set(270);
+  // intakeTop.move(0);
+
+  // drive(3);
+  // drive(-3.2);
+  chassis.drive_set(0, 0);
+
+  chassis.pid_drive_set(DRIVE_DISTANCE_CYCLE2 - 5, 95);
+  chassis.pid_wait_quick_chain();
+  horns.set(true);
+
+  // intakeTop.move(120);
+
+  // chassis.pid_drive_set(5, 35);
+  // chassis.pid_wait();
+
+  chassis.drive_set(50, 50);
+
+  pros::delay(2400);  // pickup delay for loader !!!! - 300
+
+  chassis.drive_set(0, 0);
+
+  drive(-DRIVE_DISTANCE_CYCLE2 + 1);
+  chassis.drive_set(-20, -20);
+
+  horns.set(false);
+  scraper.set(false);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1000);
+
+  chassis.drive_angle_set(270);
+
+  chassis.drive_set(0, 0);
+
+  intake.move(120);
+
+  drive(12);
+
+  turnRel(-45);
+
+  chassis.drive_set(80, 60);
+
+  horns.set(true);
+
+  pros::delay(900);
+
+  scraper.set(true);
+
+  chassis.drive_set(100, 80);
+
+  pros::delay(200);
+
+  chassis.drive_set(100, 100);
+
+  pros::delay(600);
+
+  chassis.drive_set(0, 0);
+
+  // turnRel(0);
+
+  // horns.set(true);
+
+  // drive(48);
+
+  // turnRel(270);
+
+  // chassis.drive_set(120, 120);
+  // pros::delay(1500);
+
+  // turnRel(-85);
+  // turnRel(-95);
+  // turnRel(-85);
+  // turnRel(-95);
+}
+/**
+ * Main autonomous selector functions.
+ * These are called from the autonomous selector in main.cpp
+ */
 
 void drive_left() {
-  genericDrive(LEFT);  // Dont forget to change back to LEFT !!!
-
+  genericDrive(LEFT);
   master.rumble("..-");
-};
+}
 
 void drive_right() {
-  genericDrive(RIGHT);
+  // genericDrive(RIGHT);
+
+  chassis.drive_angle_set(90);
+
+  chassis.pid_drive_constants_set(8, 0, 18.0);
+
+  scraper.set(true);
+  horns.set(true);
+  drive(34);
+
+  turnRel(180);
+
+  intake.move(127);
+  intakeTop.move(127);
+
+  // drive(14);
+  chassis.pid_drive_set(14, 100);
+  chassis.pid_wait_quick_chain();
+
+  chassis.drive_set(50, 50);
+
+  pros::delay(200);  // pickup delay for loader !!!! - 300
+
+  chassis.drive_set(0, 0);
+
+  intakeTop.move(0);
+  intake.move(40);
+
+  drive(-DRIVE_DISTANCE_CYCLE2);
+  chassis.drive_set(-50, -50);
+  horns.set(false);
+  scraper.set(false);
+  intakeTop.move(127);
+  intake.move(127);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1250);
+
+  drive(GENERIC_DRIVE_AWAY_LONG);
+
+  // Position for endgame for right
+  // turnRel(135);
+  chassis.pid_turn_set(GENERIC_TURN_PAR1, 110);
+  chassis.pid_wait_quick_chain();
+
+  // chassis.pid_turn_set(135, 120);
+  // chassis.pid_wait_quick();
+
+  // drive(-16);  //-14
+  chassis.pid_drive_set(GENERIC_DRIVE_PAR, 110);  //-31
+  chassis.pid_wait();                                 // quick chain
+
+  turnRel(180);
+
+  // chassis.pid_turn_set(-GENERIC_TURN_PAR2, 110);
+  // chassis.pid_wait_quick_chain();
+
+  horns.set(false);
+
+  chassis.pid_drive_set(-15, DRIVE_SPEED);
+  chassis.pid_wait();
 
   master.rumble("..-");
-};
+
+  // intake.move(-INTAKE_SORT_SPEED);
+  // pros::delay(CENTER_REJECT);  // RING_EJECT_DELAY
+  // intake.move(0);
+}
 
 void drive_swp() {
   soloWinPoint();
-
-  master.rumble("..-");
+  // master.rumble("..-");
 }
 
 void drive_skills() {
   skills();
-
   master.rumble("-.-");
 }
 
 void driveInch() {
   drive(2);
+  master.rumble(".");
 }
-// with curve
 
-// void leftDrive() {
-//   // Move center left
+void driveRight2() {
+  turnRel(29);
+  intake.move(INTAKE_SPEED);
+  horns.set(true);
+  outtake.set(false);
 
-//   // Turn to 45deg with the right side of the drive, and the left side going 30
-//   chassis.pid_swing_set(ez::LEFT_SWING, 90_deg, 64, 43);
-//   chassis.pid_wait();
+  drive(16);
+  chassis.pid_drive_set(12, SLOW_DRIVE_SPEED);
+  chassis.pid_wait();
+  // pros::delay(COLOR_SORT_DELAY);
+  intake.move(0);
 
-//   master.rumble(".");
-// }
+  turnRel(133);  // 135 * orient
+  drive(36);     // 44.5//
+
+  master.rumble(".");
+
+  // Move to center goal and score
+  scraper.set(true);
+  // pros::delay(SETTLING_DELAY);
+  turnRel(179);  // 180
+
+  // intake.move(INTAKE_MEDIUM_SPEED);
+
+  intake.move(120);
+
+  chassis.pid_drive_set(11, 110);
+  chassis.pid_wait();
+
+  intakeTop.move(120);
+
+  pros::delay(PICKUP_AUTOS - 200);  // pickup delay for loader !!!! 300
+
+  intakeTop.move(0);
+
+  chassis.pid_drive_set(-30, 110);
+  chassis.pid_wait_quick_chain();
+
+  intakeTop.move(120);
+
+  pros::delay(RING_EJECT_DELAY + 1200);  //+300// ring+600
+  scraper.set(false);
+  horns.set(true);
+
+  intakeTop.move(0);
+  intake.move(0);
+
+  drive(12);
+
+  // Position for endgame for right
+  turnRel(135);
+  drive(-16);  //-14
+  turnRel(-180);
+  horns.set(false);
+
+  chassis.pid_drive_set(-15, DRIVE_SPEED);
+  chassis.pid_wait();
+  // drive(-8);
+}
+
+// chassis.pid_turn_set(90, 100);
+// chassis.pid_wait_quick_chain();
