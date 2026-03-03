@@ -260,14 +260,11 @@ void genericDrive(OrientationEnum orientation) {
 
   intakeTop.move(INTAKE_SPEED);
 
-
   pros::delay(RING_EJECT_DELAY + 500);  //+300
 
   chassis.drive_set(0, 0);
   scraper.set(false);
   horns.set(true);
-
-
 
   intakeTop.move(0);
   intake.move(0);
@@ -284,7 +281,7 @@ void genericDrive(OrientationEnum orientation) {
 
   // drive(-16);  //-14
   chassis.pid_drive_set(GENERIC_DRIVE_PAR - 1, 110);  //-31
-  chassis.pid_wait();                             // quick chain
+  chassis.pid_wait();                                 // quick chain
 
   // turnRel(-180);
   chassis.pid_turn_set(-GENERIC_TURN_PAR2, 110);
@@ -400,7 +397,6 @@ void soloWinPoint() {
   chassis.pid_wait_quick_chain();
 
   horns.set(false);
-
 
   intakeTop.move(127);
 
@@ -1001,7 +997,66 @@ void drive_left() {
 }
 
 void drive_right() {
-  genericDrive(RIGHT);
+  // genericDrive(RIGHT);
+
+  chassis.drive_angle_set(90);
+
+  chassis.pid_drive_constants_set(8, 0, 18.0);
+
+  scraper.set(true);
+  horns.set(true);
+  drive(34);
+
+  turnRel(180);
+
+  intake.move(127);
+  intakeTop.move(127);
+
+  // drive(14);
+  chassis.pid_drive_set(14, 100);
+  chassis.pid_wait_quick_chain();
+
+  chassis.drive_set(50, 50);
+
+  pros::delay(200);  // pickup delay for loader !!!! - 300
+
+  chassis.drive_set(0, 0);
+
+  intakeTop.move(0);
+  intake.move(40);
+
+  drive(-DRIVE_DISTANCE_CYCLE2);
+  chassis.drive_set(-50, -50);
+  horns.set(false);
+  scraper.set(false);
+  intakeTop.move(127);
+  intake.move(127);
+  pros::delay(DEPOSIT_DELAY_SKILLS + 1250);
+
+  drive(GENERIC_DRIVE_AWAY_LONG);
+
+  // Position for endgame for right
+  // turnRel(135);
+  chassis.pid_turn_set(GENERIC_TURN_PAR1, 110);
+  chassis.pid_wait_quick_chain();
+
+  // chassis.pid_turn_set(135, 120);
+  // chassis.pid_wait_quick();
+
+  // drive(-16);  //-14
+  chassis.pid_drive_set(GENERIC_DRIVE_PAR, 110);  //-31
+  chassis.pid_wait();                                 // quick chain
+
+  turnRel(180);
+
+  // chassis.pid_turn_set(-GENERIC_TURN_PAR2, 110);
+  // chassis.pid_wait_quick_chain();
+
+  horns.set(false);
+
+  chassis.pid_drive_set(-15, DRIVE_SPEED);
+  chassis.pid_wait();
+
   master.rumble("..-");
 
   // intake.move(-INTAKE_SORT_SPEED);
