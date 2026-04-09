@@ -294,17 +294,10 @@ void opcontrol() {
 
     // ---------------- No Color Sort -------------------
 
-    if (master.get_digital(DIGITAL_R2)) {
-      intakeTop.move(127);
-    } else if (master.get_digital(DIGITAL_R1)) {
-      intakeTop.move(-127);
-    } else {
-      intakeTop.move(0);
-    }
 
-    if (master.get_digital(DIGITAL_L2)) {
+    if (master.get_digital(DIGITAL_R2)) {
       intake.move(127);
-    } else if (master.get_digital(DIGITAL_L1)) {
+    } else if (master.get_digital(DIGITAL_L2)) {
       intake.move(-127);
     } else {
       intake.move(0);
@@ -330,6 +323,10 @@ void opcontrol() {
     outtake.button_toggle(master.get_digital(DIGITAL_B));
 
     intakePiston.button_toggle(master.get_digital(DIGITAL_Y));
+
+    midGoalDeScore.button_toggle(master.get_digital(DIGITAL_LEFT));
+
+    //
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
