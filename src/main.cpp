@@ -114,7 +114,6 @@ void initialize() {
   // scraper.set(true);
   // horns.set(true);
   Hoarder.set(true);
-  outtake.set(true);
 }
 
 /**
@@ -283,6 +282,10 @@ void opcontrol() {
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
+    // Static variables to manage the toggle state for DIGITAL_B
+    static bool outtake_toggled_by_B = true;
+    static bool b_button_last_state = false;
+
     ez_template_extras();
 
     chassis.opcontrol_arcade_standard(ez::SPLIT);  // Standard split arcade
@@ -294,17 +297,29 @@ void opcontrol() {
     // Put more user control code here!
     // . . .
 
-    // ---------------- No Color Sort -------------------
+    // Handle DIGITAL_B toggle
+    bool b_button_current_state = master.get_digital(DIGITAL_B);
+    if (b_button_current_state && !b_button_last_state) {
+      outtake_toggled_by_B = !outtake_toggled_by_B;
+    }
+    b_button_last_state = b_button_current_state;
 
-    if (master.get_digital(DIGITAL_L2)) {
-      intake.move(127);
+    // ---------------- Triggers -------------------
+
+    if (master.get_digital(DIGITAL_R1)) {
+      outtake.set(true);
+      intake.move(-127);
     } else if (master.get_digital(DIGITAL_R2)) {
       intake.move(-127);
+      outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
+    } else if (master.get_digital(DIGITAL_L2)) {
+      intake.move(127);
+      outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
     } else {
       intake.move(0);
+      outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
     }
 
-    // Double Park
     // if (master.get_digital(DIGITAL_DOWN)) {
     //   intake.move(-90);
     //   while (distance_sensor_intake.get() > 90) {
@@ -318,10 +333,6 @@ void opcontrol() {
     // ---------------- Buttons -------------------
 
     scraper.button_toggle(master.get_digital(DIGITAL_A));
-
-    horns.button_toggle(master.get_digital(DIGITAL_DOWN));
-
-    outtake.button_toggle(master.get_digital(DIGITAL_B));
 
     intakePiston.button_toggle(master.get_digital(DIGITAL_Y));
 
