@@ -40,7 +40,7 @@ const int TURN_SPEED = 110;
 ez::Drive chassis(
     // These are for the drive motors, the first motor is used for distance sensing!
     {-8, -9, -10},  // Left Chassis Ports (negative port will reverse it!)-1,2,-3
-    {4, 5, 6},  // Right Chassis Ports (negative port will reverse it!)10,-9,8
+    {4, 5, 6},      // Right Chassis Ports (negative port will reverse it!)10,-9,8
 
     3,     // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)f
@@ -92,8 +92,8 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
+      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
 
       {"Drive1\n\nSolo Win Point Right", drive_swp},
       {"Drive1\n\nSkills Code", drive_skills},
@@ -113,6 +113,8 @@ void initialize() {
 
   // scraper.set(true);
   // horns.set(true);
+  Hoarder.set(true);
+  outtake.set(true);
 }
 
 /**
@@ -294,10 +296,9 @@ void opcontrol() {
 
     // ---------------- No Color Sort -------------------
 
-
-    if (master.get_digital(DIGITAL_R2)) {
+    if (master.get_digital(DIGITAL_L2)) {
       intake.move(127);
-    } else if (master.get_digital(DIGITAL_L2)) {
+    } else if (master.get_digital(DIGITAL_R2)) {
       intake.move(-127);
     } else {
       intake.move(0);
@@ -324,7 +325,9 @@ void opcontrol() {
 
     intakePiston.button_toggle(master.get_digital(DIGITAL_Y));
 
-    midGoalDeScore.button_toggle(master.get_digital(DIGITAL_LEFT));
+    Hoarder.button_toggle(master.get_digital(DIGITAL_LEFT));
+
+    midGoalDeScore.button_toggle(master.get_digital(DIGITAL_RIGHT));
 
     //
 

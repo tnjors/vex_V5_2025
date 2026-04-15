@@ -190,25 +190,20 @@ void genericDrive(OrientationEnum orientation) {
 
   // chassis.pid_drive_constants_set(8, 0, 18.0);
 
-  turnRel(GENERIC_INITIAL_ANGLE * orientation);
   intake.move(INTAKE_SPEED);
-  intakeTop.move(INTAKE_SPEED);
-  horns.set(true);
+  Hoarder.set(true);
 
   drive(GENERIC_DRIVE_DISTANCE_CENTER);
   chassis.pid_drive_set(GENERIC_CENTER_PICKUP_DRIVE, SLOW_DRIVE_SPEED);
   chassis.pid_wait();
-  intake.move(0);
 
   if (orientation == LEFT) {
     turnRel(135 * orientation);
     drive(-17);  //-13
-    horns.set(false);
+    Hoarder.set(false);
     outtake.set(true);
-    intakeTop.move(120);
     intake.move(120);
     pros::delay(RING_EJECT_DELAY);
-    intakeTop.move(0);
     intake.move(0);
     outtake.set(false);
     drive(54);  // 50
@@ -258,7 +253,6 @@ void genericDrive(OrientationEnum orientation) {
   horns.set(false);
   scraper.set(false);
 
-  intakeTop.move(INTAKE_SPEED);
 
   pros::delay(RING_EJECT_DELAY + 500);  //+300
 
@@ -266,7 +260,6 @@ void genericDrive(OrientationEnum orientation) {
   scraper.set(false);
   horns.set(true);
 
-  intakeTop.move(0);
   intake.move(0);
 
   drive(GENERIC_DRIVE_AWAY_LONG);
