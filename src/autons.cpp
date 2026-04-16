@@ -1132,5 +1132,3 @@ void driveRight2() {
   // drive(-8);
 }
 
-// chassis.pid_turn_set(90, 100);
-// chassis.pid_wait_quick_chain();

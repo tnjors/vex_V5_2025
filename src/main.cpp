@@ -53,7 +53,8 @@ ez::Drive chassis(
 // - `4.0` is the distance from the center of the wheel to the center of the robot
 // ez::tracking_wheel horiz_tracker(8, 2.75, 4.0);  // This tracking wheel is perpendicular to the drive wheels
 // ez::tracking_wheel vert_tracker(9, 2.75, 4.0);   // This tracking wheel is parallel to the drive wheels
-ez::tracking_wheel vert_tracker(7, 2, -0.03);  // This tracking wheel is parallel to the drive wheels
+
+// ez::tracking_wheel vert_tracker(7, 2, -0.03);  // This tracking wheel is parallel to the drive wheels - deactivated!
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -76,7 +77,7 @@ void initialize() {
   //  - ignore this if you aren't using a vertical tracker
   // chassis.odom_tracker_left_set(&vert_tracker);
 
-  chassis.odom_tracker_left_set(&vert_tracker);
+  // chassis.odom_tracker_left_set(&vert_tracker); // deactivated!
 
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true);   // Enables modifying the controller curve with buttons on the joysticks
@@ -339,6 +340,10 @@ void opcontrol() {
     Hoarder.button_toggle(master.get_digital(DIGITAL_LEFT));
 
     midGoalDeScore.button_toggle(master.get_digital(DIGITAL_RIGHT));
+
+    // horns.button_toggle(master.get_digital(DIGITAL_DOWN));
+
+    horns.set(master.get_digital(DIGITAL_DOWN));
 
     //
 
