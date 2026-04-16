@@ -114,7 +114,7 @@ void initialize() {
 
   // scraper.set(true);
   // horns.set(true);
-  Hoarder.set(true);
+  hoarder.set(true);
 }
 
 /**
@@ -318,14 +318,14 @@ void opcontrol() {
 
     if (master.get_digital(DIGITAL_R1)) {
       outtake.set(true);
-      intake.move(-127);
+      intake.move(127);
       intakePiston.set(intake_toggled_by_Y);
     } else if (master.get_digital(DIGITAL_R2)) {
-      intake.move(-127);
+      intake.move(127);
       outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
       intakePiston.set(intake_toggled_by_Y);
     } else if (master.get_digital(DIGITAL_L2)) {
-      intake.move(127);
+      intake.move(-127);
       outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
       intakePiston.set(true);             // Forced up when intaking
     } else {
@@ -348,7 +348,7 @@ void opcontrol() {
 
     scraper.button_toggle(master.get_digital(DIGITAL_A));
 
-    Hoarder.button_toggle(master.get_digital(DIGITAL_LEFT));
+    hoarder.button_toggle(master.get_digital(DIGITAL_LEFT));
 
     midGoalDeScore.button_toggle(master.get_digital(DIGITAL_RIGHT));
 
