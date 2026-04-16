@@ -286,6 +286,8 @@ void opcontrol() {
     // Static variables to manage the toggle state for DIGITAL_B
     static bool outtake_toggled_by_B = true;
     static bool b_button_last_state = false;
+    static bool intake_toggled_by_Y = false;
+    static bool y_button_last_state = false;
 
     ez_template_extras();
 
@@ -305,20 +307,31 @@ void opcontrol() {
     }
     b_button_last_state = b_button_current_state;
 
+    // Handle DIGITAL_Y toggle
+    bool y_button_current_state = master.get_digital(DIGITAL_Y);
+    if (y_button_current_state && !y_button_last_state) {
+      intake_toggled_by_Y = !intake_toggled_by_Y;
+    }
+    y_button_last_state = y_button_current_state;
+
     // ---------------- Triggers -------------------
 
     if (master.get_digital(DIGITAL_R1)) {
       outtake.set(true);
       intake.move(-127);
+      intakePiston.set(intake_toggled_by_Y);
     } else if (master.get_digital(DIGITAL_R2)) {
       intake.move(-127);
       outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
+      intakePiston.set(intake_toggled_by_Y);
     } else if (master.get_digital(DIGITAL_L2)) {
       intake.move(127);
       outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
+      intakePiston.set(true);             // Forced up when intaking
     } else {
       intake.move(0);
       outtake.set(outtake_toggled_by_B);  // Use toggled state if R1 is not pressed
+      intakePiston.set(intake_toggled_by_Y);
     }
 
     // if (master.get_digital(DIGITAL_DOWN)) {
@@ -334,8 +347,6 @@ void opcontrol() {
     // ---------------- Buttons -------------------
 
     scraper.button_toggle(master.get_digital(DIGITAL_A));
-
-    intakePiston.button_toggle(master.get_digital(DIGITAL_Y));
 
     Hoarder.button_toggle(master.get_digital(DIGITAL_LEFT));
 
