@@ -1,8 +1,6 @@
 #include "main.h"
 
-#define OPTICAL_PORT 19
-
-extern pros::Optical colorSensor;
+#define OPTICAL_PORT 20
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -15,7 +13,7 @@ const int TURN_SPEED = 120;
 const int SWING_SPEED = 110;
 
 // Additional speed constants for autonomous routines
-const int SLOW_DRIVE_SPEED = 30;
+const int SLOW_DRIVE_SPEED = 29;
 const int MEDIUM_DRIVE_SPEED = 40;
 const int VERY_SLOW_DRIVE_SPEED = 25;
 const int INTAKE_SPEED = 120;
@@ -994,7 +992,7 @@ void drive_left() {
 
   chassis.pid_drive_constants_set(8, 0, 18.0);
 
-  chassis.pid_drive_set(-25, DRIVE_SPEED);  //-31
+  chassis.pid_drive_set(-24, DRIVE_SPEED);  //-31
   chassis.pid_wait_quick_chain();
 
   scraper.set(true);
@@ -1003,31 +1001,73 @@ void drive_left() {
   intake.move(120);
   chassis.pid_drive_set(11.5, DRIVE_SPEED);
   chassis.pid_wait();
-  chassis.drive_set(50, 50);
-  chassis.drive_set(40, 40); // Maintain light pressure against the loader
+  chassis.drive_set(40, 40);  // Maintain light pressure against the loader
 
-  // pros::delay(100);
-  int ballCount = 0;
-  bool ballInSensor = false;
-  while (ballCount < 3) {
-    double hue = colorSensor.get_hue();
-    int proximity = colorSensor.get_proximity();
+  pros::delay(100);
 
-    // Detect Red (near 0/360) or Blue (near 240) balls
-    bool isTargetBall = (hue < 30 || hue > 330) || (hue > 200 && hue < 260);
+  chassis.pid_drive_set(-DRIVE_DISTANCE_CYCLE2, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  hoarder.set(false);
 
-    if (proximity > 180 && isTargetBall) {
-      if (!ballInSensor) {
-        ballCount++;
-        ballInSensor = true; // Wait for ball to pass before counting next
-      }
-    } else if (proximity < 100) {
-      ballInSensor = false;
-    }
-    pros::delay(ez::util::DELAY_TIME);
-  }
+  chassis.drive_set(-50, -50);
 
-  chassis.drive_set(0, 0); // Stop pushing after 3 balls
+  scraper.set(false);
+
+  pros::delay(1000);
+  intake.move(0);
+
+  chassis.drive_angle_set(90);
+
+  chassis.pid_turn_set(-15, 100);
+  chassis.pid_wait_quick_chain();
+
+  hoarder.set(true);
+  intake.move(120);
+
+  // drive(19);  // 16
+  chassis.pid_drive_set(18, 60); //80 spd
+  chassis.pid_wait_quick();
+
+  turnRel(135);
+  intake.move(0);
+  drive(-14);
+  outtake.set(true);
+  intake.move(120);
+
+  pros::delay(300);
+
+  chassis.pid_drive_set(27, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_turn_set(90, 100);
+  chassis.pid_wait();
+
+  drive(-23);
+
+  master.rumble("..-");
+}
+
+void drive_right() {
+  // genericDrive(RIGHT);
+
+  outtake.set(false);
+  hoarder.set(true);
+
+  chassis.pid_drive_constants_set(8, 0, 18.0);
+
+  chassis.pid_drive_set(-26, DRIVE_SPEED);  //-31
+  chassis.pid_wait_quick_chain();
+
+  scraper.set(true);
+  turnRel(-91);
+
+  intake.move(120);
+  chassis.pid_drive_set(11.5, DRIVE_SPEED);
+  chassis.pid_wait();
+  chassis.drive_set(40, 40);  // Maintain light pressure against the loader
+
+  pros::delay(100);
+
   chassis.pid_drive_set(-DRIVE_DISTANCE_CYCLE2, DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
   hoarder.set(false);
@@ -1039,90 +1079,35 @@ void drive_left() {
   pros::delay(700);
   intake.move(0);
 
-  chassis.drive_angle_set(90);
+  chassis.drive_angle_set(-90);
 
-  chassis.pid_turn_set(-10, 100);
+  chassis.pid_turn_set(15, 100);
   chassis.pid_wait_quick_chain();
 
   hoarder.set(true);
   intake.move(120);
 
   // drive(19);  // 16
-  chassis.pid_drive_set(17, 80);
+  chassis.pid_drive_set(19, 80);
   chassis.pid_wait_quick();
 
-  turnRel(135);
+  turnRel(45);
   intake.move(0);
-  drive(-16);
-  outtake.set(true);
-  intake.move(120);
+  drive(13);
+  intakePiston.set(true);
+  intake.move(-120);
 
   pros::delay(300);
 
-  master.rumble("..-");
-}
-
-void drive_right() {
-  // genericDrive(RIGHT);
-
-  chassis.drive_angle_set(90);
-
-  chassis.pid_drive_constants_set(8, 0, 18.0);
-
-  scraper.set(true);
-  horns.set(true);
-  drive(34);
-
-  turnRel(180);
-
-  intake.move(127);
-  intakeTop.move(127);
-
-  // drive(14);
-  chassis.pid_drive_set(14, 100);
+  chassis.pid_drive_set(-27, DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
 
-  chassis.drive_set(50, 50);
+  intakePiston.set(false);
 
-  pros::delay(200);  // pickup delay for loader !!!! - 300
-
-  chassis.drive_set(0, 0);
-
-  intakeTop.move(0);
-  intake.move(40);
-
-  drive(-DRIVE_DISTANCE_CYCLE2);
-  chassis.drive_set(-50, -50);
-  horns.set(false);
-  scraper.set(false);
-  intakeTop.move(127);
-  intake.move(127);
-  pros::delay(DEPOSIT_DELAY_SKILLS + 1250);
-
-  drive(GENERIC_DRIVE_AWAY_LONG);
-
-  // Position for endgame for right
-  // turnRel(135);
-  chassis.pid_turn_set(GENERIC_TURN_PAR1, 110);
-  chassis.pid_wait_quick_chain();
-
-  // chassis.pid_turn_set(135, 120);
-  // chassis.pid_wait_quick();
-
-  // drive(-16);  //-14
-  chassis.pid_drive_set(GENERIC_DRIVE_PAR, 110);  //-31
-  chassis.pid_wait();                             // quick chain
-
-  turnRel(180);
-
-  // chassis.pid_turn_set(-GENERIC_TURN_PAR2, 110);
-  // chassis.pid_wait_quick_chain();
-
-  horns.set(false);
-
-  chassis.pid_drive_set(-15, DRIVE_SPEED);
+  chassis.pid_turn_set(90, 100);
   chassis.pid_wait();
 
+  drive(23);
   master.rumble("..-");
 
   // intake.move(-INTAKE_SORT_SPEED);
