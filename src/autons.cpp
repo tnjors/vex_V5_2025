@@ -1,5 +1,8 @@
 #include "main.h"
+
 #define OPTICAL_PORT 19
+
+extern pros::Optical colorSensor;
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -49,7 +52,7 @@ const int GENERIC_TURN_PAR2 = -180;
 
 // 2. Skills
 
-const int DRIVE_DISTANCE_CYCLE2 = 31.5;
+const int DRIVE_DISTANCE_CYCLE2 = 30.5;
 const int DEPOSIT_DELAY_SKILLS = 2100;
 
 // ----------------------------------------------------------------------------
@@ -191,7 +194,7 @@ void genericDrive(OrientationEnum orientation) {
   // chassis.pid_drive_constants_set(8, 0, 18.0);
 
   intake.move(INTAKE_SPEED);
-  Hoarder.set(true);
+  hoarder.set(true);
 
   drive(GENERIC_DRIVE_DISTANCE_CENTER);
   chassis.pid_drive_set(GENERIC_CENTER_PICKUP_DRIVE, SLOW_DRIVE_SPEED);
@@ -200,7 +203,7 @@ void genericDrive(OrientationEnum orientation) {
   if (orientation == LEFT) {
     turnRel(135 * orientation);
     drive(-17);  //-13
-    Hoarder.set(false);
+    hoarder.set(false);
     outtake.set(true);
     intake.move(120);
     pros::delay(RING_EJECT_DELAY);
@@ -252,7 +255,6 @@ void genericDrive(OrientationEnum orientation) {
   chassis.drive_set(-50, -50);
   horns.set(false);
   scraper.set(false);
-
 
   pros::delay(RING_EJECT_DELAY + 500);  //+300
 
@@ -985,7 +987,78 @@ void skills() {
  */
 
 void drive_left() {
-  genericDrive(LEFT);
+  // genericDrive(LEFT);
+
+  outtake.set(false);
+  hoarder.set(true);
+
+  chassis.pid_drive_constants_set(8, 0, 18.0);
+
+  chassis.pid_drive_set(-25, DRIVE_SPEED);  //-31
+  chassis.pid_wait_quick_chain();
+
+  scraper.set(true);
+  turnRel(90);
+
+  intake.move(120);
+  chassis.pid_drive_set(11.5, DRIVE_SPEED);
+  chassis.pid_wait();
+  chassis.drive_set(50, 50);
+  chassis.drive_set(40, 40); // Maintain light pressure against the loader
+
+  // pros::delay(100);
+  int ballCount = 0;
+  bool ballInSensor = false;
+  while (ballCount < 3) {
+    double hue = colorSensor.get_hue();
+    int proximity = colorSensor.get_proximity();
+
+    // Detect Red (near 0/360) or Blue (near 240) balls
+    bool isTargetBall = (hue < 30 || hue > 330) || (hue > 200 && hue < 260);
+
+    if (proximity > 180 && isTargetBall) {
+      if (!ballInSensor) {
+        ballCount++;
+        ballInSensor = true; // Wait for ball to pass before counting next
+      }
+    } else if (proximity < 100) {
+      ballInSensor = false;
+    }
+    pros::delay(ez::util::DELAY_TIME);
+  }
+
+  chassis.drive_set(0, 0); // Stop pushing after 3 balls
+  chassis.pid_drive_set(-DRIVE_DISTANCE_CYCLE2, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  hoarder.set(false);
+
+  chassis.drive_set(-50, -50);
+
+  scraper.set(false);
+
+  pros::delay(700);
+  intake.move(0);
+
+  chassis.drive_angle_set(90);
+
+  chassis.pid_turn_set(-10, 100);
+  chassis.pid_wait_quick_chain();
+
+  hoarder.set(true);
+  intake.move(120);
+
+  // drive(19);  // 16
+  chassis.pid_drive_set(17, 80);
+  chassis.pid_wait_quick();
+
+  turnRel(135);
+  intake.move(0);
+  drive(-16);
+  outtake.set(true);
+  intake.move(120);
+
+  pros::delay(300);
+
   master.rumble("..-");
 }
 
@@ -1038,7 +1111,7 @@ void drive_right() {
 
   // drive(-16);  //-14
   chassis.pid_drive_set(GENERIC_DRIVE_PAR, 110);  //-31
-  chassis.pid_wait();                                 // quick chain
+  chassis.pid_wait();                             // quick chain
 
   turnRel(180);
 
@@ -1131,4 +1204,3 @@ void driveRight2() {
   chassis.pid_wait();
   // drive(-8);
 }
-
