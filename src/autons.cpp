@@ -992,28 +992,29 @@ void drive_left() {
 
   chassis.pid_drive_constants_set(8, 0, 18.0);
 
-  chassis.pid_drive_set(-24, DRIVE_SPEED);  //-31
+  chassis.pid_drive_set(-23, DRIVE_SPEED);  //-31
   chassis.pid_wait_quick_chain();
 
   scraper.set(true);
   turnRel(90);
 
-  intake.move(120);
+  intake.move(80);
   chassis.pid_drive_set(11.5, DRIVE_SPEED);
   chassis.pid_wait();
   chassis.drive_set(40, 40);  // Maintain light pressure against the loader
 
-  pros::delay(100);
+  // pros::delay(100);
 
   chassis.pid_drive_set(-DRIVE_DISTANCE_CYCLE2, DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
   hoarder.set(false);
+  intake.move(120);
 
   chassis.drive_set(-50, -50);
 
   scraper.set(false);
 
-  pros::delay(1000);
+  pros::delay(1500);
   intake.move(0);
 
   chassis.drive_angle_set(90);
@@ -1024,9 +1025,9 @@ void drive_left() {
   hoarder.set(true);
   intake.move(120);
 
-  // drive(19);  // 16
-  chassis.pid_drive_set(18, 60); //80 spd
-  chassis.pid_wait_quick();
+  drive(23);  // 16
+  // chassis.pid_drive_set(18.5, 60);  // 80 spd
+  // chassis.pid_wait_quick();
 
   turnRel(135);
   intake.move(0);
@@ -1034,13 +1035,15 @@ void drive_left() {
   outtake.set(true);
   intake.move(120);
 
-  pros::delay(300);
+  pros::delay(500);
 
   chassis.pid_drive_set(27, DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
 
   chassis.pid_turn_set(90, 100);
   chassis.pid_wait();
+
+  outtake.set(false);
 
   drive(-23);
 
@@ -1061,14 +1064,14 @@ void drive_right() {
   scraper.set(true);
   turnRel(-91);
 
-  intake.move(120);
+  intake.move(80);
   chassis.pid_drive_set(11.5, DRIVE_SPEED);
   chassis.pid_wait();
   chassis.drive_set(40, 40);  // Maintain light pressure against the loader
 
   pros::delay(100);
 
-  chassis.pid_drive_set(-DRIVE_DISTANCE_CYCLE2, DRIVE_SPEED);
+  chassis.pid_drive_set(-29.5, DRIVE_SPEED);
   chassis.pid_wait_quick_chain();
   hoarder.set(false);
 
@@ -1076,38 +1079,44 @@ void drive_right() {
 
   scraper.set(false);
 
-  pros::delay(700);
+  pros::delay(1000);
   intake.move(0);
 
   chassis.drive_angle_set(-90);
 
-  chassis.pid_turn_set(15, 100);
+  chassis.pid_turn_set(12, 100);
   chassis.pid_wait_quick_chain();
 
   hoarder.set(true);
   intake.move(120);
 
   // drive(19);  // 16
-  chassis.pid_drive_set(19, 80);
+  chassis.pid_drive_set(18, 80);
   chassis.pid_wait_quick();
 
-  turnRel(45);
   intake.move(0);
-  drive(13);
-  intakePiston.set(true);
+
+  turnRel(45);
+  drive(12);
+  // intakePiston.set(true);
   intake.move(-120);
 
-  pros::delay(300);
+  pros::delay(500);
 
-  chassis.pid_drive_set(-27, DRIVE_SPEED);
+  chassis.pid_drive_set(-42, DRIVE_SPEED);  // 27
   chassis.pid_wait_quick_chain();
-
   intakePiston.set(false);
 
-  chassis.pid_turn_set(90, 100);
+  chassis.pid_turn_set(-45, 100);
   chassis.pid_wait();
 
-  drive(23);
+  chassis.pid_drive_set(-17, DRIVE_SPEED);  // 27
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_turn_set(-90, 100);
+  chassis.pid_wait();
+
+  drive(-23);
   master.rumble("..-");
 
   // intake.move(-INTAKE_SORT_SPEED);
@@ -1116,8 +1125,105 @@ void drive_right() {
 }
 
 void drive_swp() {
-  soloWinPoint();
-  // master.rumble("..-");
+  // soloWinPoint();
+
+  outtake.set(false);
+  hoarder.set(true);
+
+  chassis.pid_drive_constants_set(8, 0, 18.0);
+
+  chassis.pid_drive_set(-26, DRIVE_SPEED);  //-31
+  chassis.pid_wait_quick_chain();
+
+  scraper.set(true);
+  turnRel(-90);
+
+  intake.move(120);
+  chassis.pid_drive_set(11.5, DRIVE_SPEED);
+  chassis.pid_wait();
+  chassis.drive_set(40, 40);  // Maintain light pressure against the loader
+
+  pros::delay(100);
+
+  chassis.pid_drive_set(-29, DRIVE_SPEED);
+  chassis.pid_wait_quick_chain();
+  hoarder.set(false);
+
+  chassis.drive_set(-50, -50);
+
+  scraper.set(false);
+
+  pros::delay(1000);
+  intake.move(0);
+
+  chassis.drive_angle_set(-90);
+
+  chassis.pid_turn_set(12, 100);
+  chassis.pid_wait_quick_chain();
+
+  hoarder.set(true);
+  intake.move(120);
+
+  // drive(19);  // 16
+  chassis.pid_drive_set(18, 80);  // used to be speed 80
+  chassis.pid_wait_until(14);
+  scraper.set(true);
+  chassis.pid_wait_quick_chain();
+
+  // turnRel(-5);
+
+  chassis.pid_turn_set(-12, 100);
+  chassis.pid_wait_quick_chain();
+
+  scraper.set(false);
+
+  chassis.pid_drive_set(36, 110);
+  chassis.pid_wait_until(28);
+  scraper.set(true);
+  chassis.pid_wait_quick_chain();
+
+  // pros::delay(300);
+
+  chassis.pid_turn_set(-39, 100);
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_drive_set(22, 110);
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_turn_set(-90, 100);
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_drive_set(-9, 110);
+  chassis.pid_wait_quick_chain();
+  hoarder.set(false);
+
+  chassis.drive_set(-50, -50);
+  chassis.drive_angle_set(-90);
+
+  pros::delay(1300);
+
+  scraper.set(true);
+  intake.move(80);
+
+  chassis.pid_drive_set(28.5, 110);
+  chassis.pid_wait_quick_chain();
+  chassis.drive_set(40, 40);  // Maintain light pressure against the loader
+
+  pros::delay(300);
+
+  chassis.pid_drive_set(-7, 110);
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_turn_set(-45, 100);
+  chassis.pid_wait_quick_chain();
+
+  chassis.pid_drive_set(-52, 110);
+  chassis.pid_wait_until(-48);
+  outtake.set(true);
+  intake.move(120);
+  chassis.pid_wait();
+
+  master.rumble("..-");
 }
 
 void drive_skills() {
