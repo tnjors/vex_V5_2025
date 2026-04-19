@@ -94,9 +94,13 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
 
-      {"Drive1\n\nSolo Win Point Right", drive_swp},
-      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
+      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
+
+      {"Drive1\n\nSolo Win Point Right", drive_swp},
+
+      {"Drive1\n\nSeven Block Drive Code Auton Start Left", drive_left_7},
+      {"Drive1\n\nSeven Block Drive Code Auton Start Right", drive_right_7},
 
       {"Drive1\n\nSkills Code", drive_skills},
 
@@ -309,7 +313,7 @@ void opcontrol() {
     b_button_last_state = b_button_current_state;
 
     // Handle DIGITAL_Y toggle
-    bool y_button_current_state = master.get_digital(DIGITAL_Y);
+    bool y_button_current_state = master.get_digital(DIGITAL_A);
     if (y_button_current_state && !y_button_last_state) {
       intake_toggled_by_Y = !intake_toggled_by_Y;
     }
@@ -347,11 +351,11 @@ void opcontrol() {
 
     // ---------------- Buttons -------------------
 
-    scraper.button_toggle(master.get_digital(DIGITAL_A));
+    scraper.button_toggle(master.get_digital(DIGITAL_Y));
 
-    hoarder.button_toggle(master.get_digital(DIGITAL_LEFT));
+    hoarder.button_toggle(master.get_digital(DIGITAL_RIGHT));
 
-    midGoalDeScore.button_toggle(master.get_digital(DIGITAL_RIGHT));
+    // midGoalDeScore.button_toggle(master.get_digital(DIGITAL_RIGHT));
 
     // horns.button_toggle(master.get_digital(DIGITAL_DOWN));
 

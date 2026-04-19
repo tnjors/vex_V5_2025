@@ -7,9 +7,11 @@ extern Drive chassis;
 
 void default_constants();
 
-
 void drive_left();
 void drive_right();
+void drive_left_7();
+void drive_right_7();
+
 void drive_swp();
 void drive_skills();
 void driveInch();
