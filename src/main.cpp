@@ -39,7 +39,7 @@ const int TURN_SPEED = 110;
 // Chassis constructor
 ez::Drive chassis(
     // These are for the drive motors, the first motor is used for distance sensing!
-    {-8, -9, -10},  // Left Chassis Ports (negative port will reverse it!)-1,2,-3
+    {-8, -7, -10},  // Left Chassis Ports (negative port will reverse it!)-1,2,-3
     {4, 5, 6},      // Right Chassis Ports (negative port will reverse it!)10,-9,8
 
     3,     // IMU Port
@@ -95,12 +95,13 @@ void initialize() {
   ez::as::auton_selector.autons_add({
 
       {"Drive1\n\nMain Drive Code Auton Start Left", drive_left},
-      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
+
+      {"Drive1\n\nSeven Block Drive Code Auton Start Right", drive_right_7},
+      {"Drive1\n\nSeven Block Drive Code Auton Start Left", drive_left_7},
 
       {"Drive1\n\nSolo Win Point Right", drive_swp},
 
-      {"Drive1\n\nSeven Block Drive Code Auton Start Left", drive_left_7},
-      {"Drive1\n\nSeven Block Drive Code Auton Start Right", drive_right_7},
+      {"Drive1\n\nMain Drive Code Auton Start Right", drive_right},
 
       {"Drive1\n\nSkills Code", drive_skills},
 
@@ -119,7 +120,7 @@ void initialize() {
 
   // scraper.set(true);
   // horns.set(true);
-  hoarder.set(true);
+  hoarder.set(false);
 }
 
 /**
@@ -286,10 +287,12 @@ void opcontrol() {
 
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
+  horns.set(true);
+
   while (true) {
     // Gives you some extras to make EZ-Template ezier
     // Static variables to manage the toggle state for DIGITAL_B
-    static bool outtake_toggled_by_B = true;
+    static bool outtake_toggled_by_B = false;
     static bool b_button_last_state = false;
     static bool intake_toggled_by_Y = false;
     static bool y_button_last_state = false;
@@ -306,14 +309,14 @@ void opcontrol() {
     // . . .
 
     // Handle DIGITAL_B toggle
-    bool b_button_current_state = master.get_digital(DIGITAL_B);
+    bool b_button_current_state = master.get_digital(DIGITAL_UP);
     if (b_button_current_state && !b_button_last_state) {
       outtake_toggled_by_B = !outtake_toggled_by_B;
     }
     b_button_last_state = b_button_current_state;
 
     // Handle DIGITAL_Y toggle
-    bool y_button_current_state = master.get_digital(DIGITAL_A);
+    bool y_button_current_state = master.get_digital(DIGITAL_UP);
     if (y_button_current_state && !y_button_last_state) {
       intake_toggled_by_Y = !intake_toggled_by_Y;
     }
@@ -351,15 +354,15 @@ void opcontrol() {
 
     // ---------------- Buttons -------------------
 
-    scraper.button_toggle(master.get_digital(DIGITAL_Y));
+    scraper.button_toggle(master.get_digital(DIGITAL_A));
 
-    hoarder.button_toggle(master.get_digital(DIGITAL_RIGHT));
+    hoarder.button_toggle(master.get_digital(DIGITAL_B));
 
-    // midGoalDeScore.button_toggle(master.get_digital(DIGITAL_RIGHT));
+    // midGoalDeScore.button_toggle(master.get_digital(DIGITAL_Y));
 
-    // horns.button_toggle(master.get_digital(DIGITAL_DOWN));
+    midGoalDeScore.set(master.get_digital(DIGITAL_Y));
 
-    horns.set(master.get_digital(DIGITAL_DOWN));
+    horns.set(!master.get_digital(DIGITAL_DOWN));
 
     //
 
